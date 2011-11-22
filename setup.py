@@ -15,7 +15,7 @@ setup(
     url='https://github.com/trilan/django-gears',
     author='Mike Yumatov',
     author_email='mike@yumatov.org',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests', 'tests.*']),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',

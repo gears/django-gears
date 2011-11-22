@@ -2,6 +2,7 @@ from __future__ import with_statement
 
 import os
 import re
+import shlex
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
@@ -48,41 +49,44 @@ class DirectivesMixin(object):
         else:
             header = ''
             body = source
-        return '\n'.join(self.process_directives(header, body))
+        source = '\n\n'.join(self.process_directives(header, body))
+        return source.strip() + '\n'
 
     def process_directives(self, header, self_body):
         body = []
         directive_linenos = []
         for n, name, path in self.parse_directives(header):
             path = '.'.join((path, self.extension))
+            path = os.path.join(os.path.dirname(self.path), path)
             processor = self.__class__(self.base, path)
             body.append(processor.process())
             directive_linenos.append(n)
-        body.append(self_body)
+        body.append(self_body.strip())
         header = header.splitlines()
         for lineno in reversed(directive_linenos):
             del header[lineno]
-        return '\n'.join(header), '\n'.join(body)
+        return '\n'.join(header).strip(), '\n'.join(body).strip()
 
     def parse_directives(self, header):
         for n, line in enumerate(header.splitlines()):
             match = re.match(self.directive_re, line)
             if match:
-                yield n, match.group(1), match.group(2)
+                args = shlex.split(match.group(1))
+                yield [n] + shlex.split(match.group(1))
 
 
 class CSSProcessor(DirectivesMixin, BaseProcessor):
 
     extension = 'css'
     header_re = r'^(\s*/\*.*?\*/)+'
-    directive_re = r'^\s*\*=\s+(require)\s+(.*)$'
+    directive_re = r"""^\s*\*\s*=\s*(require[.'"\s\w-]*)$"""
 
 
 class JavaScriptProcessor(DirectivesMixin, BaseProcessor):
 
     extension = 'js'
     header_re = r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+'
-    directive_re = r'^\s*(?:\*|//)=\s+(require)\s+(.*)$'
+    directive_re = r"""^\s*(?:\*|//)\s*=\s*(require[.'"\s\w-]*)$"""
 
 
 def process(base, path):
