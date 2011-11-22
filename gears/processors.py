@@ -42,10 +42,10 @@ class DirectivesMixin(object):
     directive_re = None
 
     def process_source(self, source):
-        match = re.match(self.header_re, source, re.DOTALL)
+        match = self.header_re.match(source)
         if match:
             header = match.group(0)
-            body = re.sub(self.header_re, '', source, flags=re.DOTALL)
+            body = self.header_re.sub('', source)
         else:
             header = ''
             body = source
@@ -69,7 +69,7 @@ class DirectivesMixin(object):
 
     def parse_directives(self, header):
         for n, line in enumerate(header.splitlines()):
-            match = re.match(self.directive_re, line)
+            match = self.directive_re.match(line)
             if match:
                 args = shlex.split(match.group(1))
                 yield [n] + shlex.split(match.group(1))
@@ -78,15 +78,15 @@ class DirectivesMixin(object):
 class CSSProcessor(DirectivesMixin, BaseProcessor):
 
     extension = 'css'
-    header_re = r'^(\s*/\*.*?\*/)+'
-    directive_re = r"""^\s*\*\s*=\s*(require[.'"\s\w-]*)$"""
+    header_re = re.compile(r'^(\s*/\*.*?\*/)+', re.DOTALL)
+    directive_re = re.compile(r"""^\s*\*\s*=\s*(\w+[.'"\s\w-]*)$""")
 
 
 class JavaScriptProcessor(DirectivesMixin, BaseProcessor):
 
     extension = 'js'
-    header_re = r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+'
-    directive_re = r"""^\s*(?:\*|//)\s*=\s*(require[.'"\s\w-]*)$"""
+    header_re = re.compile(r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+', re.DOTALL)
+    directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[.'"\s\w-]*)$""")
 
 
 def process(base, path):
