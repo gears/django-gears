@@ -15,11 +15,18 @@ from . import settings
 _processors = {}
 
 
+class InvalidDirective(Exception):
+    pass
+
+
 class BaseProcessor(object):
 
     def __init__(self, base, path):
         self.base = base
         self.path = path
+
+    def get_absolute_path(self):
+        return os.path.join(self.base, self.path)
 
     def process(self):
         with open(safe_join(self.base, self.path), 'rb') as f:
@@ -55,11 +62,13 @@ class DirectivesMixin(object):
     def process_directives(self, header, self_body):
         body = []
         directive_linenos = []
-        for n, name, path in self.parse_directives(header):
-            path = '.'.join((path, self.extension))
-            path = os.path.join(os.path.dirname(self.path), path)
-            processor = self.__class__(self.base, path)
-            body.append(processor.process())
+        for n, args in self.parse_directives(header):
+            if args[0] == 'require':
+                self.process_require_directive(args[1:], n, body)
+            else:
+                raise InvalidDirective(
+                    "%s (%s): unknown directive: %r."
+                    % (self.get_absolute_path(), n, args[0]))
             directive_linenos.append(n)
         body.append(self_body.strip())
         header = header.splitlines()
@@ -71,8 +80,17 @@ class DirectivesMixin(object):
         for n, line in enumerate(header.splitlines()):
             match = self.directive_re.match(line)
             if match:
-                args = shlex.split(match.group(1))
-                yield [n] + shlex.split(match.group(1))
+                yield n, shlex.split(match.group(1))
+
+    def process_require_directive(self, args, lineno, body):
+        if len(args) != 1:
+            raise InvalidDirective(
+                "%s (%s): 'require' directive has wrong number "
+                "of arguments (only one argument required): %s."
+                % (self.absolute_path(), lineno, args))
+        path = '%s.%s' % (args[0], self.extension)
+        path = os.path.join(os.path.dirname(self.path), path)
+        body.append(self.__class__(self.base, path).process())
 
 
 class CSSProcessor(DirectivesMixin, BaseProcessor):
