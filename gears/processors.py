@@ -81,10 +81,14 @@ class DirectivesMixin(object):
                 directive_linenos.append(lineno)
         if not has_require_self:
             body.append(self_body.strip())
+        header = self.strip_header(header, directive_linenos)
+        return header, '\n\n'.join(body).strip()
+
+    def strip_header(self, header, linenos):
         header = header.splitlines()
-        for lineno in reversed(directive_linenos):
+        for lineno in reversed(linenos):
             del header[lineno]
-        return '\n'.join(header).strip(), '\n\n'.join(body).strip()
+        return '\n'.join(header).strip()
 
     def parse_directives(self, header):
         for lineno, line in enumerate(header.splitlines()):
