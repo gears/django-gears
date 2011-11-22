@@ -63,13 +63,17 @@ class DirectivesMixin(object):
         body = []
         directive_linenos = []
         for n, args in self.parse_directives(header):
-            if args[0] == 'require':
-                self.process_require_directive(args[1:], n, body)
+            try:
+                if args[0] == 'require':
+                    self.process_require_directive(args[1:], n, body)
+                else:
+                    raise InvalidDirective(
+                        "%s (%s): unknown directive: %r."
+                        % (self.get_absolute_path(), n, args[0]))
+            except InvalidDirective:
+                pass
             else:
-                raise InvalidDirective(
-                    "%s (%s): unknown directive: %r."
-                    % (self.get_absolute_path(), n, args[0]))
-            directive_linenos.append(n)
+                directive_linenos.append(n)
         body.append(self_body.strip())
         header = header.splitlines()
         for lineno in reversed(directive_linenos):

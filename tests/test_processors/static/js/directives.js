@@ -1,4 +1,5 @@
 /*
+ * =invalid_directive
  * =require error */
 
 (function () {
