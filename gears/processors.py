@@ -63,22 +63,22 @@ class DirectivesMixin(object):
         body = []
         directive_linenos = []
         has_require_self = False
-        for n, args in self.parse_directives(header):
+        for lineno, args in self.parse_directives(header):
             try:
                 if args[0] == 'require':
-                    self.process_require_directive(args[1:], n, body)
+                    self.process_require_directive(args[1:], lineno, body)
                 elif args[0] == 'require_self':
                     self.process_require_self_directive(
-                        args[1:], n, body, self_body)
+                        args[1:], lineno, body, self_body)
                     has_require_self = True
                 else:
                     raise InvalidDirective(
                         "%s (%s): unknown directive: %r."
-                        % (self.get_absolute_path(), n, args[0]))
+                        % (self.get_absolute_path(), lineno, args[0]))
             except InvalidDirective:
                 pass
             else:
-                directive_linenos.append(n)
+                directive_linenos.append(lineno)
         if not has_require_self:
             body.append(self_body.strip())
         header = header.splitlines()
@@ -87,10 +87,10 @@ class DirectivesMixin(object):
         return '\n'.join(header).strip(), '\n\n'.join(body).strip()
 
     def parse_directives(self, header):
-        for n, line in enumerate(header.splitlines()):
+        for lineno, line in enumerate(header.splitlines()):
             match = self.directive_re.match(line)
             if match:
-                yield n, shlex.split(match.group(1))
+                yield lineno, shlex.split(match.group(1))
 
     def process_require_directive(self, args, lineno, body):
         if len(args) != 1:
