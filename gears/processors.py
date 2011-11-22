@@ -62,10 +62,15 @@ class DirectivesMixin(object):
     def process_directives(self, header, self_body):
         body = []
         directive_linenos = []
+        has_require_self = False
         for n, args in self.parse_directives(header):
             try:
                 if args[0] == 'require':
                     self.process_require_directive(args[1:], n, body)
+                elif args[0] == 'require_self':
+                    self.process_require_self_directive(
+                        args[1:], n, body, self_body)
+                    has_require_self = True
                 else:
                     raise InvalidDirective(
                         "%s (%s): unknown directive: %r."
@@ -74,11 +79,12 @@ class DirectivesMixin(object):
                 pass
             else:
                 directive_linenos.append(n)
-        body.append(self_body.strip())
+        if not has_require_self:
+            body.append(self_body.strip())
         header = header.splitlines()
         for lineno in reversed(directive_linenos):
             del header[lineno]
-        return '\n'.join(header).strip(), '\n'.join(body).strip()
+        return '\n'.join(header).strip(), '\n\n'.join(body).strip()
 
     def parse_directives(self, header):
         for n, line in enumerate(header.splitlines()):
@@ -91,10 +97,17 @@ class DirectivesMixin(object):
             raise InvalidDirective(
                 "%s (%s): 'require' directive has wrong number "
                 "of arguments (only one argument required): %s."
-                % (self.absolute_path(), lineno, args))
+                % (self.get_absolute_path(), lineno, args))
         path = '%s.%s' % (args[0], self.extension)
         path = os.path.join(os.path.dirname(self.path), path)
-        body.append(self.__class__(self.base, path).process())
+        body.append(self.__class__(self.base, path).process().strip())
+
+    def process_require_self_directive(self, args, lineno, body, self_body):
+        if args:
+            raise InvalidDirective(
+                "%s (%s): 'require_self' directive requires no arguments."
+                % self.get_absolute_path(), lineno)
+        body.append(self_body.strip())
 
 
 class CSSProcessor(DirectivesMixin, BaseProcessor):
