@@ -1,15 +1,12 @@
 import os
 
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.datastructures import SortedDict
 from django.utils.functional import memoize
 from django.utils.importlib import import_module
 from django.utils._os import safe_join
 
-from . import settings
 
-
-_finders = SortedDict()
+_finder_classes = {}
 
 
 class BaseFinder(object):
@@ -20,19 +17,15 @@ class BaseFinder(object):
 
 class FileSystemFinder(BaseFinder):
 
-    def __init__(self):
+    def __init__(self, directories):
         self.locations = []
-        if not isinstance(settings.GEARS_DIRS, (list, tuple)):
+        if not isinstance(directories, (list, tuple)):
             raise ImproperlyConfigured(
-                'Your GEARS_DIRS setting is not a tuple or list; '
-                'perhaps you forgot a trailing comma?')
-        for root in settings.GEARS_DIRS:
-            if os.path.abspath(root) == os.path.abspath(settings.GEARS_ROOT):
-                raise ImproperlyConfigured(
-                    'The GEARS_DIRS setting should not contain the '
-                    'GEARS_ROOT setting')
-            if root not in self.locations:
-                self.locations.append(root)
+                "FileSystemFinder's 'directories' parameter is not a "
+                "tuple or list; perhaps you forgot a trailing comma?")
+        for directory in directories:
+            if directory not in self.locations:
+                self.locations.append(directory)
 
     def find(self, path, all=False):
         matches = []
@@ -50,27 +43,8 @@ class FileSystemFinder(BaseFinder):
             return path
 
 
-def find(path, all=False):
-    matches = []
-    for finder in get_finders():
-        result = finder.find(path, all=all)
-        if not all and result:
-            return result
-        if not isinstance(result, (list, tuple)):
-            result = [result]
-        matches.extend(result)
-    if matches:
-        return matches
-    return [] if all else None
-
-
-def get_finders():
-    for finder_path in settings.GEARS_FINDERS:
-        yield get_finder(finder_path)
-
-
-def _get_finder(finder_path):
-    module_name, attr = finder_path.rsplit('.', 1)
+def _get_finder_class(path):
+    module_name, attr = path.rsplit('.', 1)
     try:
         module = import_module(module_name)
     except ImportError, e:
@@ -84,5 +58,5 @@ def _get_finder(finder_path):
     if not issubclass(Finder, BaseFinder):
         raise ImproperlyConfigured(
             'Finder "%s" is not a subclass of "%s".' % (Finder, BaseFinder))
-    return Finder()
-get_finder = memoize(_get_finder, _finders, 1)
+    return Finder
+get_finder_class = memoize(_get_finder_class, _finder_classes, 1)

@@ -7,12 +7,9 @@ import shlex
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
 from django.utils.importlib import import_module
-from django.utils._os import safe_join
-
-from . import settings
 
 
-_processors = {}
+_processor_classes = {}
 
 
 class InvalidDirective(Exception):
@@ -21,15 +18,13 @@ class InvalidDirective(Exception):
 
 class BaseProcessor(object):
 
-    def __init__(self, base, path):
-        self.base = base
+    def __init__(self, environment, path, absolute_path):
+        self.environment = environment
         self.path = path
-
-    def get_absolute_path(self):
-        return os.path.join(self.base, self.path)
+        self.absolute_path = absolute_path
 
     def process(self):
-        with open(safe_join(self.base, self.path), 'rb') as f:
+        with open(self.absolute_path, 'rb') as f:
             return self.process_source(f.read())
 
     def process_source(self, source):
@@ -74,7 +69,7 @@ class DirectivesMixin(object):
                 else:
                     raise InvalidDirective(
                         "%s (%s): unknown directive: %r."
-                        % (self.get_absolute_path(), lineno, args[0]))
+                        % (self.absolute_path, lineno, args[0]))
             except InvalidDirective:
                 pass
             else:
@@ -101,16 +96,22 @@ class DirectivesMixin(object):
             raise InvalidDirective(
                 "%s (%s): 'require' directive has wrong number "
                 "of arguments (only one argument required): %s."
-                % (self.get_absolute_path(), lineno, args))
+                % (self.absolute_path, lineno, args))
         path = '%s.%s' % (args[0], self.extension)
         path = os.path.join(os.path.dirname(self.path), path)
-        body.append(self.__class__(self.base, path).process().strip())
+        absolute_path = self.environment.find(path)
+        if not absolute_path:
+            raise InvalidDirective(
+                "%s (%s): required file does not exist."
+                % (self.absolute_path, lineno))
+        processor = self.__class__(self.environment, path, absolute_path)
+        body.append(processor.process().strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):
         if args:
             raise InvalidDirective(
                 "%s (%s): 'require_self' directive requires no arguments."
-                % self.get_absolute_path(), lineno)
+                % self.absolute_path, lineno)
         body.append(self_body.strip())
 
 
@@ -128,19 +129,8 @@ class JavaScriptProcessor(DirectivesMixin, BaseProcessor):
     directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[.'"\s\w-]*)$""")
 
 
-def process(base, path):
-    ext = os.path.splitext(path)[1].lstrip('.')
-    return get_processor_for_ext(ext)(base, path).process()
-
-
-def get_processor_for_ext(ext):
-    if ext not in settings.GEARS_PROCESSORS:
-        return RawProcessor
-    return get_processor(settings.GEARS_PROCESSORS[ext])
-
-
-def _get_processor(processor_path):
-    module_name, attr = processor_path.rsplit('.', 1)
+def _get_processor_class(path):
+    module_name, attr = path.rsplit('.', 1)
     try:
         module = import_module(module_name)
     except ImportError, e:
@@ -156,4 +146,4 @@ def _get_processor(processor_path):
             'Processor "%s" is not a subclass of "%s".'
             % (Processor, BaseProcessor))
     return Processor
-get_processor = memoize(_get_processor, _processors, 1)
+get_processor_class = memoize(_get_processor_class, _processor_classes, 1)
