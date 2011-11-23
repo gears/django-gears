@@ -45,8 +45,6 @@ class FileSystemFinder(BaseFinder):
         return matches
 
     def find_location(self, root, path):
-        if path not in settings.GEARS_PUBLIC_ASSETS:
-            return
         path = safe_join(root, path)
         if os.path.exists(path):
             return path
