@@ -9,6 +9,7 @@ from django.utils.functional import memoize
 from django.utils.importlib import import_module
 
 from .asset_attributes import AssetAttributes
+from .assets import Asset
 
 
 _processor_classes = {}
@@ -26,18 +27,8 @@ class BaseProcessor(object):
         self.path = asset_attributes.path
         self.absolute_path = asset_attributes.absolute_path
 
-    def process(self):
-        with open(self.absolute_path, 'rb') as f:
-            return self.process_source(f.read())
-
-    def process_source(self, source):
+    def process(self, source):
         raise NotImplementedError()
-
-
-class RawProcessor(BaseProcessor):
-
-    def process_source(self, source):
-        return source
 
 
 class DirectivesProcessor(BaseProcessor):
@@ -45,7 +36,7 @@ class DirectivesProcessor(BaseProcessor):
     header_re = re.compile(r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+', re.DOTALL)
     directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[.'"\s\w-]*)$""")
 
-    def process_source(self, source):
+    def process(self, source):
         match = self.header_re.match(source)
         if match:
             header = match.group(0)
@@ -108,8 +99,7 @@ class DirectivesProcessor(BaseProcessor):
                 % (self.absolute_path, lineno))
         asset_attributes = AssetAttributes(
             self.environment, path, absolute_path)
-        processor = self.__class__(asset_attributes)
-        body.append(processor.process().strip())
+        body.append(str(Asset(asset_attributes)).strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):
         if args:

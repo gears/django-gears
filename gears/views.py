@@ -8,12 +8,15 @@ from django.contrib.staticfiles.views import serve as staticfiles_serve
 from django.http import HttpResponse
 
 from .asset_attributes import AssetAttributes
+from .assets import Asset, StaticAsset
 from .settings import environment
 
 
 def build_asset(environment, path, absolute_path):
     asset_attributes = AssetAttributes(environment, path, absolute_path)
-    return asset_attributes.get_processor().process()
+    if asset_attributes.get_processor():
+        return Asset(asset_attributes)
+    return StaticAsset(asset_attributes)
 
 
 def serve(request, path, document_root=None, insecure=False, **kwargs):
