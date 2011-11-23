@@ -1,7 +1,6 @@
 import os
 
 from django.core.exceptions import ImproperlyConfigured
-from django.core.files.storage import FileSystemStorage
 from django.utils.datastructures import SortedDict
 from django.utils.functional import memoize
 from django.utils.importlib import import_module
@@ -23,7 +22,6 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self):
         self.locations = []
-        self.storages = SortedDict()
         if not isinstance(settings.GEARS_DIRS, (list, tuple)):
             raise ImproperlyConfigured(
                 'Your GEARS_DIRS setting is not a tuple or list; '
@@ -35,8 +33,6 @@ class FileSystemFinder(BaseFinder):
                     'GEARS_ROOT setting')
             if root not in self.locations:
                 self.locations.append(root)
-        for root in self.locations:
-            self.storages[root] = FileSystemStorage(location=root)
 
     def find(self, path, all=False):
         matches = []
