@@ -1,4 +1,4 @@
-from .processors import CSSProcessor, JavaScriptProcessor
+from .processors import DirectivesProcessor
 
 
 class Finders(list):
@@ -15,8 +15,8 @@ class Finders(list):
 class Processors(dict):
 
     def register_defaults(self):
-        self.register('.css', CSSProcessor)
-        self.register('.js', JavaScriptProcessor)
+        self.register('.css', DirectivesProcessor)
+        self.register('.js', DirectivesProcessor)
 
     def register(self, extension, processor_class):
         self[extension] = processor_class

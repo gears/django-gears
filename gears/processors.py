@@ -40,10 +40,10 @@ class RawProcessor(BaseProcessor):
         return source
 
 
-class DirectivesMixin(object):
+class DirectivesProcessor(BaseProcessor):
 
-    header_re = None
-    directive_re = None
+    header_re = re.compile(r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+', re.DOTALL)
+    directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[.'"\s\w-]*)$""")
 
     def process_source(self, source):
         match = self.header_re.match(source)
@@ -117,18 +117,6 @@ class DirectivesMixin(object):
                 "%s (%s): 'require_self' directive requires no arguments."
                 % self.absolute_path, lineno)
         body.append(self_body.strip())
-
-
-class CSSProcessor(DirectivesMixin, BaseProcessor):
-
-    header_re = re.compile(r'^(\s*/\*.*?\*/)+', re.DOTALL)
-    directive_re = re.compile(r"""^\s*\*\s*=\s*(\w+[.'"\s\w-]*)$""")
-
-
-class JavaScriptProcessor(DirectivesMixin, BaseProcessor):
-
-    header_re = re.compile(r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+', re.DOTALL)
-    directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[.'"\s\w-]*)$""")
 
 
 def _get_processor_class(path):

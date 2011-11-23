@@ -6,7 +6,7 @@ from django.test import TestCase
 from gears.asset_attributes import AssetAttributes
 from gears.environment import Environment
 from gears.finders import FileSystemFinder
-from gears.processors import RawProcessor, CSSProcessor, JavaScriptProcessor
+from gears.processors import RawProcessor, DirectivesProcessor
 
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -39,21 +39,16 @@ class RawProcessorTests(ProcessorTests):
         self.assertEqual(processor.process(), 'Read me\n')
 
 
-class CSSProcessorTests(ProcessorTests):
+class DirectivesProcessorTests(ProcessorTests):
 
-    processor_class = CSSProcessor
+    processor_class = DirectivesProcessor
 
-    def test_directives(self):
+    def test_css_directives(self):
         processor = self.get_processor('css/directives.css')
         with open(os.path.join(STATIC_DIR, 'css', 'directives.css')) as f:
             self.assertEqual(processor.process(), f.read())
 
-
-class JavaScriptProcessorTests(ProcessorTests):
-
-    processor_class = JavaScriptProcessor
-
-    def test_directives(self):
+    def test_js_directives(self):
         processor = self.get_processor('js/directives.js')
         with open(os.path.join(STATIC_DIR, 'js', 'directives.js')) as f:
             self.assertEqual(processor.process(), f.read())
