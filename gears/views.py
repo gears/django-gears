@@ -7,7 +7,13 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.staticfiles.views import serve as staticfiles_serve
 from django.http import HttpResponse
 
+from .asset_attributes import AssetAttributes
 from .settings import environment
+
+
+def build_asset(environment, path, absolute_path):
+    asset_attributes = AssetAttributes(environment, path, absolute_path)
+    return asset_attributes.get_processor().process()
 
 
 def serve(request, path, document_root=None, insecure=False, **kwargs):
@@ -26,7 +32,8 @@ def serve(request, path, document_root=None, insecure=False, **kwargs):
     mimetype, encoding = mimetypes.guess_type(absolute_path)
     mimetype = mimetype or 'application/octet-stream'
     response = HttpResponse(
-        environment.process(normalized_path, absolute_path), mimetype=mimetype)
+        build_asset(environment, normalized_path, absolute_path),
+        mimetype=mimetype)
     if encoding:
         response['Content-Encoding'] = encoding
     return response

@@ -1,4 +1,3 @@
-import os
 from .processors import CSSProcessor, JavaScriptProcessor
 
 
@@ -69,8 +68,3 @@ class Environment(object):
         if matches:
             return matches
         return [] if all else None
-
-    def process(self, path, absolute_path):
-        extension = os.path.splitext(path)[1]
-        processor = self.processors.get(extension)
-        return processor(self, path, absolute_path).process()

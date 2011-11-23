@@ -3,6 +3,7 @@ from __future__ import with_statement
 import os
 from django.test import TestCase
 
+from gears.asset_attributes import AssetAttributes
 from gears.environment import Environment
 from gears.finders import FileSystemFinder
 from gears.processors import RawProcessor, CSSProcessor, JavaScriptProcessor
@@ -25,7 +26,8 @@ class ProcessorTests(TestCase):
     def get_processor(self, path):
         environment = self.get_environment()
         absolute_path = os.path.join(ASSETS_DIR, path)
-        return self.processor_class(environment, path, absolute_path)
+        asset_attributes = AssetAttributes(environment, path, absolute_path)
+        return self.processor_class(asset_attributes)
 
 
 class RawProcessorTests(ProcessorTests):

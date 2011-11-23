@@ -8,6 +8,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
 from django.utils.importlib import import_module
 
+from .asset_attributes import AssetAttributes
+
 
 _processor_classes = {}
 
@@ -18,10 +20,11 @@ class InvalidDirective(Exception):
 
 class BaseProcessor(object):
 
-    def __init__(self, environment, path, absolute_path):
-        self.environment = environment
-        self.path = path
-        self.absolute_path = absolute_path
+    def __init__(self, asset_attributes):
+        self.asset_attributes = asset_attributes
+        self.environment = asset_attributes.environment
+        self.path = asset_attributes.path
+        self.absolute_path = asset_attributes.absolute_path
 
     def process(self):
         with open(self.absolute_path, 'rb') as f:
@@ -39,7 +42,6 @@ class RawProcessor(BaseProcessor):
 
 class DirectivesMixin(object):
 
-    extension = None
     header_re = None
     directive_re = None
 
@@ -97,14 +99,16 @@ class DirectivesMixin(object):
                 "%s (%s): 'require' directive has wrong number "
                 "of arguments (only one argument required): %s."
                 % (self.absolute_path, lineno, args))
-        path = '%s.%s' % (args[0], self.extension)
+        path = args[0] + self.asset_attributes.get_format_extension()
         path = os.path.join(os.path.dirname(self.path), path)
         absolute_path = self.environment.find(path)
         if not absolute_path:
             raise InvalidDirective(
                 "%s (%s): required file does not exist."
                 % (self.absolute_path, lineno))
-        processor = self.__class__(self.environment, path, absolute_path)
+        asset_attributes = AssetAttributes(
+            self.environment, path, absolute_path)
+        processor = self.__class__(asset_attributes)
         body.append(processor.process().strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):
@@ -117,14 +121,12 @@ class DirectivesMixin(object):
 
 class CSSProcessor(DirectivesMixin, BaseProcessor):
 
-    extension = 'css'
     header_re = re.compile(r'^(\s*/\*.*?\*/)+', re.DOTALL)
     directive_re = re.compile(r"""^\s*\*\s*=\s*(\w+[.'"\s\w-]*)$""")
 
 
 class JavaScriptProcessor(DirectivesMixin, BaseProcessor):
 
-    extension = 'js'
     header_re = re.compile(r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+', re.DOTALL)
     directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[.'"\s\w-]*)$""")
 
