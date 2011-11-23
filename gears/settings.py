@@ -12,7 +12,7 @@ GEARS_PROCESSORS = getattr(settings, 'GEARS_PROCESSORS', {
     'js': 'gears.processors.JavaScriptProcessor',
 })
 
-GEARS_ASSETS = (
+GEARS_PUBLIC_ASSETS = getattr(settings, 'GEARS_PUBLIC_ASSETS', (
     'css/style.css',
     'js/script.js',
-)
+))
