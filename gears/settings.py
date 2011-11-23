@@ -12,8 +12,8 @@ DEFAULT_FINDERS = (
 )
 
 DEFAULT_PROCESSORS = {
-    'css': 'gears.processors.CSSProcessor',
-    'js': 'gears.processors.JavaScriptProcessor',
+    '.css': 'gears.processors.CSSProcessor',
+    '.js': 'gears.processors.JavaScriptProcessor',
 }
 
 DEFAULT_PUBLIC_ASSETS = (

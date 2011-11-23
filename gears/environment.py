@@ -16,8 +16,8 @@ class Finders(list):
 class Processors(dict):
 
     def register_defaults(self):
-        self.register('css', CSSProcessor)
-        self.register('js', JavaScriptProcessor)
+        self.register('.css', CSSProcessor)
+        self.register('.js', JavaScriptProcessor)
 
     def register(self, extension, processor_class):
         self[extension] = processor_class
@@ -71,6 +71,6 @@ class Environment(object):
         return [] if all else None
 
     def process(self, path, absolute_path):
-        extension = os.path.splitext(path)[1].lstrip('.')
+        extension = os.path.splitext(path)[1]
         processor = self.processors.get(extension)
         return processor(self, path, absolute_path).process()
