@@ -12,31 +12,29 @@ from .assets import Asset, StaticAsset
 from .settings import environment
 
 
-def build_asset(environment, path, absolute_path):
+def build_asset(environment, path):
+    if path not in environment.public_assets:
+        return
     asset_attributes = AssetAttributes(environment, path)
-    if asset_attributes.get_processors():
-        return Asset(asset_attributes, absolute_path)
-    return StaticAsset(asset_attributes, absolute_path)
+    absolute_path = environment.find(path)
+    if absolute_path:
+        if asset_attributes.get_processors():
+            return Asset(asset_attributes, absolute_path)
+        return StaticAsset(asset_attributes, absolute_path)
 
 
-def serve(request, path, document_root=None, insecure=False, **kwargs):
-    if not settings.DEBUG and not insecure:
+def serve(request, path, **kwargs):
+    if not settings.DEBUG and not kwargs.get('insecure'):
         raise ImproperlyConfigured(
             "The gears view can only be used in debug mode or if the "
             "--insecure option of 'runserver' is used.")
     normalized_path = posixpath.normpath(urllib.unquote(path)).lstrip('/')
-    if normalized_path in environment.public_assets:
-        absolute_path = environment.find(normalized_path)
-    else:
-        absolute_path = None
-    if not absolute_path:
-        return staticfiles_serve(request, path, document_root=document_root,
-                                 insecure=insecure, **kwargs)
-    mimetype, encoding = mimetypes.guess_type(absolute_path)
+    asset = build_asset(environment, normalized_path)
+    if not asset:
+        return staticfiles_serve(request, path, **kwargs)
+    mimetype, encoding = mimetypes.guess_type(normalized_path)
     mimetype = mimetype or 'application/octet-stream'
-    response = HttpResponse(
-        build_asset(environment, normalized_path, absolute_path),
-        mimetype=mimetype)
+    response = HttpResponse(asset, mimetype=mimetype)
     if encoding:
         response['Content-Encoding'] = encoding
     return response
