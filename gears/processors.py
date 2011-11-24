@@ -33,7 +33,7 @@ class BaseProcessor(object):
 class DirectivesProcessor(BaseProcessor):
 
     header_re = re.compile(r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+', re.DOTALL)
-    directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[.'"\s\w-]*)$""")
+    directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[./'"\s\w-]*)$""")
 
     def process(self, source):
         match = self.header_re.match(source)
