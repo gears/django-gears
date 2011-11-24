@@ -17,7 +17,7 @@ DEFAULT_MIMETYPES = {
     '.js': 'application/javascript',
 }
 
-DEFAULT_PROCESSORS = {
+DEFAULT_PREPROCESSORS = {
     'text/css': 'gears.processors.DirectivesProcessor',
     'application/javascript': 'gears.processors.DirectivesProcessor',
 }
@@ -50,14 +50,22 @@ for extension, engine_class in getattr(settings, 'GEARS_ENGINES', {}).items():
     engine_class = get_engine_class(engine_class)
     environment.engines.register(extension, engine_class(**options))
 
-processors = getattr(settings, 'GEARS_PROCESSORS', DEFAULT_PROCESSORS)
-for mimetype, processor_classes in processors.items():
-    if not isinstance(processor_classes, (list, tuple)):
-        processor_classes = [processor_classes]
-    for processor_class in processor_classes:
-        processor_class = get_processor_class(processor_class)
-        environment.processors.register(mimetype, processor_class)
-
 public_assets = getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS)
 for public_asset in public_assets:
     environment.public_assets.register(public_asset)
+
+preprocessors = getattr(settings, 'GEARS_PREPROCESSORS', DEFAULT_PREPROCESSORS)
+for mimetype, preprocessor_classes in preprocessors.items():
+    if not isinstance(preprocessor_classes, (list, tuple)):
+        preprocessor_classes = [preprocessor_classes]
+    for preprocessor_class in preprocessor_classes:
+        preprocessor_class = get_processor_class(preprocessor_class)
+        environment.preprocessors.register(mimetype, preprocessor_class)
+
+postprocessors = getattr(settings, 'GEARS_POSTPROCESSORS', {})
+for mimetype, postprocessor_classes in postprocessors.items():
+    if not isinstance(postprocessor_classes, (list, tuple)):
+        postprocessor_classes = [postprocessor_classes]
+    for postprocessor_class in postprocessor_classes:
+        postprocessor_class = get_processor_class(postprocessor_class)
+        environment.postprocessors.register(mimetype, postprocessor_class)

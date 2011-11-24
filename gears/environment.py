@@ -43,10 +43,6 @@ class Engines(dict):
 
 class Processors(dict):
 
-    def register_defaults(self):
-        self.register('text/css', DirectivesProcessor)
-        self.register('application/javascript', DirectivesProcessor)
-
     def register(self, mimetype, processor_class):
         self.setdefault(mimetype, []).append(processor_class)
 
@@ -56,6 +52,17 @@ class Processors(dict):
 
     def get(self, mimetype):
         return super(Processors, self).get(mimetype, [])
+
+
+class Preprocessors(Processors):
+
+    def register_defaults(self):
+        self.register('text/css', DirectivesProcessor)
+        self.register('application/javascript', DirectivesProcessor)
+
+
+class Postprocessors(Processors):
+    pass
 
 
 class PublicAssets(list):
@@ -107,8 +114,9 @@ class Environment(object):
         self.finders = Finders()
         self.engines = Engines()
         self.mimetypes = MIMETypes()
-        self.processors = Processors()
         self.public_assets = PublicAssets()
+        self.preprocessors = Preprocessors()
+        self.postprocessors = Postprocessors()
 
     @property
     def suffixes(self):
@@ -123,8 +131,8 @@ class Environment(object):
 
     def register_defaults(self):
         self.mimetypes.register_defaults()
-        self.processors.register_defaults()
         self.public_assets.register_defaults()
+        self.preprocessors.register_defaults()
 
     def find(self, item, logical=False):
         if isinstance(item, AssetAttributes):

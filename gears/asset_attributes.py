@@ -51,13 +51,22 @@ class AssetAttributes(object):
         return [self.environment.engines.get(e) for e in self.engine_extensions]
 
     @cached_property
+    def preprocessors(self):
+        return self._get_processors(self.environment.preprocessors)
+
+    @cached_property
+    def postprocessors(self):
+        return self._get_processors(self.environment.postprocessors)
+
+    @cached_property
     def processors(self):
-        processor_classes = self.environment.processors.get(self.mimetype)
-        processors = [cls(self) for cls in processor_classes]
-        processors.extend(reversed(self.engines))
-        return processors
+        engines = list(reversed(self.engines))
+        return self.preprocessors + engines + self.postprocessors
 
     @cached_property
     def mimetype(self):
         return (self.environment.mimetypes.get(self.format_extension) or
                 'application/octet-stream')
+
+    def _get_processors(self, storage):
+        return [cls(self) for cls in storage.get(self.mimetype)]
