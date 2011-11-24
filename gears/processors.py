@@ -25,7 +25,6 @@ class BaseProcessor(object):
         self.asset_attributes = asset_attributes
         self.environment = asset_attributes.environment
         self.path = asset_attributes.path
-        self.absolute_path = asset_attributes.absolute_path
 
     def process(self, source):
         raise NotImplementedError()
@@ -62,7 +61,7 @@ class DirectivesProcessor(BaseProcessor):
                 else:
                     raise InvalidDirective(
                         "%s (%s): unknown directive: %r."
-                        % (self.absolute_path, lineno, args[0]))
+                        % (self.path, lineno, args[0]))
             except InvalidDirective:
                 pass
             else:
@@ -89,14 +88,14 @@ class DirectivesProcessor(BaseProcessor):
             raise InvalidDirective(
                 "%s (%s): 'require' directive has wrong number "
                 "of arguments (only one argument required): %s."
-                % (self.absolute_path, lineno, args))
+                % (self.path, lineno, args))
         path = args[0] + self.asset_attributes.get_format_extension()
         path = os.path.join(os.path.dirname(self.path), path)
         absolute_path = self.environment.find(path)
         if not absolute_path:
             raise InvalidDirective(
                 "%s (%s): required file does not exist."
-                % (self.absolute_path, lineno))
+                % (self.path, lineno))
         asset_attributes = AssetAttributes(
             self.environment, path, absolute_path)
         body.append(str(Asset(asset_attributes)).strip())
@@ -105,7 +104,7 @@ class DirectivesProcessor(BaseProcessor):
         if args:
             raise InvalidDirective(
                 "%s (%s): 'require_self' directive requires no arguments."
-                % self.absolute_path, lineno)
+                % self.path, lineno)
         body.append(self_body.strip())
 
 
