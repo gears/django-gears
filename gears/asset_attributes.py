@@ -1,5 +1,6 @@
 import os
 import re
+from .utils import cached_property
 
 
 class AssetAttributes(object):
@@ -8,53 +9,55 @@ class AssetAttributes(object):
         self.environment = environment
         self.path = path
 
-    def get_search_paths(self):
+    @cached_property
+    def search_paths(self):
         paths = [self.path]
-        path_without_extensions = self.get_path_without_extensions()
-        if os.path.basename(path_without_extensions) != 'index':
-            path = os.path.join(path_without_extensions, 'index')
-            path += ''.join(self.get_extensions())
-            paths.append(path)
+        if os.path.basename(self.path_without_extensions) != 'index':
+            path = os.path.join(self.path_without_extensions, 'index')
+            paths.append(path + ''.join(self.extensions))
         return paths
 
-    def get_path_without_extensions(self):
-        suffix = ''.join(self.get_extensions())
-        if suffix:
-            return self.path[:-len(suffix)]
+    @cached_property
+    def path_without_extensions(self):
+        if self.extensions:
+            return self.path[:-len(''.join(self.extensions))]
         return self.path
 
-    def get_extensions(self):
+    @cached_property
+    def extensions(self):
         return re.findall(r'\.[^.]+', os.path.basename(self.path))
 
-    def get_format_extension(self):
-        for extension in self.get_extensions():
+    @cached_property
+    def format_extension(self):
+        for extension in self.extensions:
             engine = self.environment.engines.get(extension)
             if not engine and self.environment.mimetypes.get(extension):
                 return extension
 
-    def get_suffix(self):
-        extensions = self.get_extensions()
+    @cached_property
+    def suffix(self):
         try:
-            index = extensions.index(self.get_format_extension())
+            index = self.extensions.index(self.format_extension)
         except ValueError:
-            return extensions
-        return extensions[index:]
+            return self.extensions
+        return self.extensions[index:]
 
-    def get_engine_extensions(self):
-        return [e for e in self.get_suffix()[1:]
-                if self.environment.engines.get(e)]
+    @cached_property
+    def engine_extensions(self):
+        return [e for e in self.suffix[1:] if self.environment.engines.get(e)]
 
-    def get_engines(self):
-        return [self.environment.engines.get(e)
-                for e in self.get_engine_extensions()]
+    @cached_property
+    def engines(self):
+        return [self.environment.engines.get(e) for e in self.engine_extensions]
 
-    def get_processors(self):
-        mimetype = self.get_mimetype()
-        processor_classes = self.environment.processors.get(mimetype)
+    @cached_property
+    def processors(self):
+        processor_classes = self.environment.processors.get(self.mimetype)
         processors = [cls(self) for cls in processor_classes]
-        processors.extend(reversed(self.get_engines()))
+        processors.extend(reversed(self.engines))
         return processors
 
-    def get_mimetype(self):
-        return (self.environment.mimetypes.get(self.get_format_extension()) or
+    @cached_property
+    def mimetype(self):
+        return (self.environment.mimetypes.get(self.format_extension) or
                 'application/octet-stream')

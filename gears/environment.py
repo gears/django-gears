@@ -128,7 +128,7 @@ class Environment(object):
 
     def find(self, item, logical=False):
         if isinstance(item, AssetAttributes):
-            return self.find(item.get_search_paths(), logical)
+            return self.find(item.search_paths, logical)
         if isinstance(item, (list, tuple)):
             try:
                 return first(all, (self.find(p, logical) for p in item))
@@ -136,8 +136,8 @@ class Environment(object):
                 return None, None
         if logical:
             asset_attribute = AssetAttributes(self, item)
-            path = asset_attribute.get_path_without_extensions()
-            suffixes = self.suffixes.find(*asset_attribute.get_suffix())
+            path = asset_attribute.path_without_extensions
+            suffixes = self.suffixes.find(*asset_attribute.suffix)
             try:
                 return first(all, (self.find(path + s) for s in suffixes))
             except ValueError:

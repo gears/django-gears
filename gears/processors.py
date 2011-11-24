@@ -109,7 +109,7 @@ class DirectivesProcessor(BaseProcessor):
 
     def get_relative_path(self, require_path):
         require_path = os.path.join(os.path.dirname(self.path), require_path)
-        return require_path + ''.join(self.asset_attributes.get_extensions())
+        return require_path + ''.join(self.asset_attributes.extensions)
 
 
 def _get_processor_class(path):

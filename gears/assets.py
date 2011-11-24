@@ -19,7 +19,7 @@ class Asset(BaseAsset):
     def get_source(self):
         with open(self.absolute_path, 'rb') as f:
             source = f.read()
-        for processor in self.attributes.get_processors():
+        for processor in self.attributes.processors:
             source = processor.process(source)
         return source
 

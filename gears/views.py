@@ -18,7 +18,7 @@ def build_asset(environment, path):
     asset_attributes = AssetAttributes(environment, path)
     asset_attributes, absolute_path = environment.find(asset_attributes, True)
     if absolute_path:
-        if asset_attributes.get_processors():
+        if asset_attributes.processors:
             return Asset(asset_attributes, absolute_path)
         return StaticAsset(asset_attributes, absolute_path)
 
