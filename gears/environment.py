@@ -29,18 +29,18 @@ class MIMETypes(dict):
 class Processors(dict):
 
     def register_defaults(self):
-        self.register('.css', DirectivesProcessor)
-        self.register('.js', DirectivesProcessor)
+        self.register('text/css', DirectivesProcessor)
+        self.register('application/javascript', DirectivesProcessor)
 
-    def register(self, extension, processor_class):
-        self[extension] = processor_class
+    def register(self, mimetype, processor_class):
+        self[mimetype] = processor_class
 
-    def unregister(self, extension):
-        if extension in self:
-            del self[extension]
+    def unregister(self, mimetype):
+        if mimetype in self:
+            del self[mimetype]
 
-    def get(self, extension):
-        return super(Processors, self).get(extension)
+    def get(self, mimetype):
+        return super(Processors, self).get(mimetype)
 
 
 class PublicAssets(list):

@@ -17,8 +17,8 @@ DEFAULT_MIMETYPES = {
 }
 
 DEFAULT_PROCESSORS = {
-    '.css': 'gears.processors.DirectivesProcessor',
-    '.js': 'gears.processors.DirectivesProcessor',
+    'text/css': 'gears.processors.DirectivesProcessor',
+    'application/javascript': 'gears.processors.DirectivesProcessor',
 }
 
 DEFAULT_PUBLIC_ASSETS = (
@@ -38,16 +38,16 @@ for finder_class in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
     environment.finders.register(finder_class(**options))
 
 mimetypes = getattr(settings, 'GEARS_MIMETYPES', DEFAULT_MIMETYPES)
-for extension, mimetype in mimetypes:
+for extension, mimetype in mimetypes.items():
     environment.mimetypes.register(extension, mimetype)
 
 processors = getattr(settings, 'GEARS_PROCESSORS', DEFAULT_PROCESSORS)
-for extension, processor_classes in processors.items():
+for mimetype, processor_classes in processors.items():
     if not isinstance(processor_classes, (list, tuple)):
         processor_classes = [processor_classes]
     for processor_class in processor_classes:
         processor_class = get_processor_class(processor_class)
-        environment.processors.register(extension, processor_class)
+        environment.processors.register(mimetype, processor_class)
 
 public_assets = getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS)
 for public_asset in public_assets:
