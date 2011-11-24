@@ -72,15 +72,8 @@ class Environment(object):
         self.processors.register_defaults()
         self.public_assets.register_defaults()
 
-    def find(self, path, all=False):
-        matches = []
+    def find(self, path):
         for finder in self.finders:
-            result = finder.find(path, all=all)
-            if not all and result:
+            result = finder.find(path)
+            if result:
                 return result
-            if not isinstance(result, (list, tuple)):
-                result = []
-            matches.extend(result)
-        if matches:
-            return matches
-        return [] if all else None
