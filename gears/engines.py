@@ -20,20 +20,31 @@ class BaseEngine(object):
         raise NotImplementedError()
 
 
-class CoffeeScriptEngine(BaseEngine):
+class ExecEngine(BaseEngine):
 
-    result_mimetype = 'application/javascript'
+    params = []
 
     def __init__(self, executable):
         self.executable = executable
 
     def process(self, source):
-        args = [self.executable, '--print', '--stdio']
+        args = [self.executable] + self.params
         p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output, errors = p.communicate(input=source)
         if p.returncode == 0:
             return output
         raise EngineProcessFailed(errors)
+
+
+class CoffeeScriptEngine(ExecEngine):
+
+    params = ['--print', '--stdio']
+    result_mimetype = 'application/javascript'
+
+
+class StylusEngine(ExecEngine):
+
+    result_mimetype = 'text/css'
 
 
 def _get_engine_class(path):
