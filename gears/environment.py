@@ -1,6 +1,6 @@
 from .asset_attributes import AssetAttributes
 from .processors import DirectivesProcessor
-from .utils import first_or_none
+from .utils import first, first_or_none
 
 
 class Finders(list):
@@ -22,6 +22,19 @@ class MIMETypes(dict):
 
     def register(self, extension, mimetype):
         self[extension] = mimetype
+
+    def unregister(self, extension):
+        if extension in self:
+            del self[extension]
+
+
+class Engines(dict):
+
+    def __init__(self):
+        super(Engines, self).__init__()
+
+    def register(self, extension, engine):
+        self[extension] = engine
 
     def unregister(self, extension):
         if extension in self:
@@ -60,25 +73,75 @@ class PublicAssets(list):
             self.remove(path)
 
 
+class Suffixes(list):
+
+    def register(self, extension, root=False, to=None, mimetype=None):
+        if root:
+            self.append({'extensions': [extension], 'mimetype': mimetype})
+            return
+        new = []
+        for suffix in self:
+            if to is not None and suffix['mimetype'] != to:
+                continue
+            extensions = list(suffix['extensions'])
+            extensions.append(extension)
+            new.append({'extensions': extensions, 'mimetype': mimetype})
+        self.extend(new)
+
+    def unregister(self, extension):
+        for suffix in self:
+            if extension in self['extensions']:
+                self.remove(suffix)
+
+    def find(self, *extensions):
+        extensions = list(extensions)
+        length = len(extensions)
+        return [''.join(suffix['extensions']) for suffix in self
+                if suffix['extensions'][:length] == extensions]
+
+
 class Environment(object):
 
     def __init__(self, root):
         self.root = root
         self.finders = Finders()
+        self.engines = Engines()
         self.mimetypes = MIMETypes()
         self.processors = Processors()
         self.public_assets = PublicAssets()
+
+    @property
+    def suffixes(self):
+        if not hasattr(self, '_suffixes'):
+            suffixes = Suffixes()
+            for extension, mimetype in self.mimetypes.items():
+                suffixes.register(extension, root=True, mimetype=mimetype)
+            for extension, engine in self.engines.items():
+                suffixes.register(extension, to=engine.result_mimetype)
+            self._suffixes = suffixes
+        return self._suffixes
 
     def register_defaults(self):
         self.mimetypes.register_defaults()
         self.processors.register_defaults()
         self.public_assets.register_defaults()
 
-    def find(self, item):
+    def find(self, item, logical=False):
         if isinstance(item, AssetAttributes):
-            return self.find(item.get_search_paths())
+            return self.find(item.get_search_paths(), logical)
         if isinstance(item, (list, tuple)):
-            return first_or_none(all, (self.find(p) for p in item))
+            try:
+                return first(all, (self.find(p, logical) for p in item))
+            except ValueError:
+                return None, None
+        if logical:
+            asset_attribute = AssetAttributes(self, item)
+            path = asset_attribute.get_path_without_extensions()
+            suffixes = self.suffixes.find(*asset_attribute.get_suffix())
+            try:
+                return first(all, (self.find(path + s) for s in suffixes))
+            except ValueError:
+                return None, None
         path = first_or_none(bool, (f.find(item) for f in self.finders))
         if path:
             return AssetAttributes(self, item), path

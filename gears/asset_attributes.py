@@ -27,14 +27,33 @@ class AssetAttributes(object):
         return re.findall(r'\.[^.]+', os.path.basename(self.path))
 
     def get_format_extension(self):
+        for extension in self.get_extensions():
+            engine = self.environment.engines.get(extension)
+            if not engine and self.environment.mimetypes.get(extension):
+                return extension
+
+    def get_suffix(self):
         extensions = self.get_extensions()
-        if extensions:
-            return extensions[-1]
+        try:
+            index = extensions.index(self.get_format_extension())
+        except ValueError:
+            return extensions
+        return extensions[index:]
+
+    def get_engine_extensions(self):
+        return [e for e in self.get_suffix()[1:]
+                if self.environment.engines.get(e)]
+
+    def get_engines(self):
+        return [self.environment.engines.get(e)
+                for e in self.get_engine_extensions()]
 
     def get_processors(self):
         mimetype = self.get_mimetype()
         processor_classes = self.environment.processors.get(mimetype)
-        return [cls(self) for cls in processor_classes]
+        processors = [cls(self) for cls in processor_classes]
+        processors.extend(reversed(self.get_engines()))
+        return processors
 
     def get_mimetype(self):
         return (self.environment.mimetypes.get(self.get_format_extension()) or

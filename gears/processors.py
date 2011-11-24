@@ -89,13 +89,10 @@ class DirectivesProcessor(BaseProcessor):
                 "%s (%s): 'require' directive has wrong number "
                 "of arguments (only one argument required): %s."
                 % (self.path, lineno, args))
-        path = args[0] + self.asset_attributes.get_format_extension()
-        path = os.path.join(os.path.dirname(self.path), path)
-        asset_attributes, absolute_path = self.environment.find(path)
+        asset_attributes, absolute_path = self.find(args[0])
         if not absolute_path:
             raise InvalidDirective(
-                "%s (%s): required file does not exist."
-                % (self.path, lineno))
+                "%s (%s): required file does not exist." % (self.path, lineno))
         body.append(str(Asset(asset_attributes, absolute_path)).strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):
@@ -104,6 +101,15 @@ class DirectivesProcessor(BaseProcessor):
                 "%s (%s): 'require_self' directive requires no arguments."
                 % self.path, lineno)
         body.append(self_body.strip())
+
+    def find(self, require_path):
+        require_path = self.get_relative_path(require_path)
+        asset_attributes = AssetAttributes(self.environment, require_path)
+        return self.environment.find(asset_attributes, True)
+
+    def get_relative_path(self, require_path):
+        require_path = os.path.join(os.path.dirname(self.path), require_path)
+        return require_path + ''.join(self.asset_attributes.get_extensions())
 
 
 def _get_processor_class(path):

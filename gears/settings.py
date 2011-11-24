@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from .engines import get_engine_class
 from .environment import Environment
 from .finders import get_finder_class
 from .processors import get_processor_class
@@ -40,6 +41,14 @@ for finder_class in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
 mimetypes = getattr(settings, 'GEARS_MIMETYPES', DEFAULT_MIMETYPES)
 for extension, mimetype in mimetypes.items():
     environment.mimetypes.register(extension, mimetype)
+
+for extension, engine_class in getattr(settings, 'GEARS_ENGINES', {}).items():
+    if isinstance(engine_class, (list, tuple)):
+        engine_class, options = engine_class
+    else:
+        options = {}
+    engine_class = get_engine_class(engine_class)
+    environment.engines.register(extension, engine_class(**options))
 
 processors = getattr(settings, 'GEARS_PROCESSORS', DEFAULT_PROCESSORS)
 for mimetype, processor_classes in processors.items():
