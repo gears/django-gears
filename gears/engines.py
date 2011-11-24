@@ -1,4 +1,4 @@
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
