@@ -1,4 +1,9 @@
 from .processors import DirectivesProcessor
+from .utils import first_or_none
+
+
+def _first(iterable):
+    return first_or_none(bool, iterable)
 
 
 class Finders(list):
@@ -72,8 +77,7 @@ class Environment(object):
         self.processors.register_defaults()
         self.public_assets.register_defaults()
 
-    def find(self, path):
-        for finder in self.finders:
-            result = finder.find(path)
-            if result:
-                return result
+    def find(self, item):
+        if isinstance(item, (list, tuple)):
+            return _first(self.find(p) for p in item)
+        return _first(f.find(item) for f in self.finders)
