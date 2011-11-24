@@ -17,10 +17,10 @@ class AssetAttributes(object):
         if extensions:
             return extensions[-1]
 
-    def get_processor(self):
+    def get_processors(self):
         mimetype = self.get_mimetype()
-        processor_class = self.environment.processors.get(mimetype)
-        return processor_class(self)
+        processor_classes = self.environment.processors.get(mimetype)
+        return [cls(self) for cls in processor_classes]
 
     def get_mimetype(self):
         return (self.environment.mimetypes.get(self.get_format_extension()) or

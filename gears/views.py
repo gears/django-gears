@@ -14,7 +14,7 @@ from .settings import environment
 
 def build_asset(environment, path, absolute_path):
     asset_attributes = AssetAttributes(environment, path, absolute_path)
-    if asset_attributes.get_processor():
+    if asset_attributes.get_processors():
         return Asset(asset_attributes)
     return StaticAsset(asset_attributes)
 

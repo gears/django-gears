@@ -33,14 +33,14 @@ class Processors(dict):
         self.register('application/javascript', DirectivesProcessor)
 
     def register(self, mimetype, processor_class):
-        self[mimetype] = processor_class
+        self.setdefault(mimetype, []).append(processor_class)
 
-    def unregister(self, mimetype):
-        if mimetype in self:
-            del self[mimetype]
+    def unregister(self, mimetype, processor_class):
+        if mimetype in self and processor_class in self[mimetype]:
+            self[mimetype].remove(processor_class)
 
     def get(self, mimetype):
-        return super(Processors, self).get(mimetype)
+        return super(Processors, self).get(mimetype, [])
 
 
 class PublicAssets(list):

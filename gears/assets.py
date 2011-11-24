@@ -16,9 +16,11 @@ class BaseAsset(object):
 class Asset(BaseAsset):
 
     def get_source(self):
-        processor = self.attributes.get_processor()
         with open(self.attributes.absolute_path, 'rb') as f:
-            return processor.process(f.read())
+            source = f.read()
+        for processor in self.attributes.get_processors():
+            source = processor.process(source)
+        return source
 
 
 class StaticAsset(BaseAsset):
