@@ -91,12 +91,11 @@ class DirectivesProcessor(BaseProcessor):
                 % (self.path, lineno, args))
         path = args[0] + self.asset_attributes.get_format_extension()
         path = os.path.join(os.path.dirname(self.path), path)
-        absolute_path = self.environment.find(path)
+        asset_attributes, absolute_path = self.environment.find(path)
         if not absolute_path:
             raise InvalidDirective(
                 "%s (%s): required file does not exist."
                 % (self.path, lineno))
-        asset_attributes = AssetAttributes(self.environment, path)
         body.append(str(Asset(asset_attributes, absolute_path)).strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):

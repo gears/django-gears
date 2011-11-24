@@ -8,6 +8,21 @@ class AssetAttributes(object):
         self.environment = environment
         self.path = path
 
+    def get_search_paths(self):
+        paths = [self.path]
+        path_without_extensions = self.get_path_without_extensions()
+        if os.path.basename(path_without_extensions) != 'index':
+            path = os.path.join(path_without_extensions, 'index')
+            path += ''.join(self.get_extensions())
+            paths.append(path)
+        return paths
+
+    def get_path_without_extensions(self):
+        suffix = ''.join(self.get_extensions())
+        if suffix:
+            return self.path[:-len(suffix)]
+        return self.path
+
     def get_extensions(self):
         return re.findall(r'\.[^.]+', os.path.basename(self.path))
 

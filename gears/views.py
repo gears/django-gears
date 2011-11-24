@@ -16,7 +16,7 @@ def build_asset(environment, path):
     if path not in environment.public_assets:
         return
     asset_attributes = AssetAttributes(environment, path)
-    absolute_path = environment.find(path)
+    asset_attributes, absolute_path = environment.find(asset_attributes)
     if absolute_path:
         if asset_attributes.get_processors():
             return Asset(asset_attributes, absolute_path)
