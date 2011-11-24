@@ -12,6 +12,20 @@ class Finders(list):
             self.remove(finder)
 
 
+class MIMETypes(dict):
+
+    def register_defaults(self):
+        self.register('.css', 'text/css')
+        self.register('.js', 'application/javascript')
+
+    def register(self, extension, mimetype):
+        self[extension] = mimetype
+
+    def unregister(self, extension):
+        if extension in self:
+            del self[extension]
+
+
 class Processors(dict):
 
     def register_defaults(self):
@@ -49,10 +63,12 @@ class Environment(object):
     def __init__(self, root):
         self.root = root
         self.finders = Finders()
+        self.mimetypes = MIMETypes()
         self.processors = Processors()
         self.public_assets = PublicAssets()
 
     def register_defaults(self):
+        self.mimetypes.register_defaults()
         self.processors.register_defaults()
         self.public_assets.register_defaults()
 

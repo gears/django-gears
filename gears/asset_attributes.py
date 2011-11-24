@@ -21,3 +21,7 @@ class AssetAttributes(object):
         format_extension = self.get_format_extension()
         processor_class = self.environment.processors.get(format_extension)
         return processor_class(self)
+
+    def get_mimetype(self):
+        return (self.environment.mimetypes.get(self.get_format_extension()) or
+                'application/octet-stream')

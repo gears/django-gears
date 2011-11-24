@@ -11,6 +11,11 @@ DEFAULT_FINDERS = (
     }),
 )
 
+DEFAULT_MIMETYPES = {
+    '.css': 'text/css',
+    '.js': 'application/javascript',
+}
+
 DEFAULT_PROCESSORS = {
     '.css': 'gears.processors.DirectivesProcessor',
     '.js': 'gears.processors.DirectivesProcessor',
@@ -31,6 +36,10 @@ for finder_class in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
         options = {}
     finder_class = get_finder_class(finder_class)
     environment.finders.register(finder_class(**options))
+
+mimetypes = getattr(settings, 'GEARS_MIMETYPES', DEFAULT_MIMETYPES)
+for extension, mimetype in mimetypes:
+    environment.mimetypes.register(extension, mimetype)
 
 processors = getattr(settings, 'GEARS_PROCESSORS', DEFAULT_PROCESSORS)
 for extension, processor_classes in processors.items():
