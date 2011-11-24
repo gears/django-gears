@@ -47,6 +47,18 @@ class StylusEngine(ExecEngine):
     result_mimetype = 'text/css'
 
 
+class SASSEngine(ExecEngine):
+
+    params = ['--stdin']
+    result_mimetype = 'text/css'
+
+
+class SCSSEngine(ExecEngine):
+
+    params = ['--stdin']
+    result_mimetype = 'text/css'
+
+
 def _get_engine_class(path):
     module_name, attr = path.rsplit('.', 1)
     try:
