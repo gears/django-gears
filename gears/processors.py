@@ -98,7 +98,7 @@ class DirectivesProcessor(BaseProcessor):
                 % (self.path, lineno))
         asset_attributes = AssetAttributes(
             self.environment, path, absolute_path)
-        body.append(str(Asset(asset_attributes)).strip())
+        body.append(str(Asset(asset_attributes, absolute_path)).strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):
         if args:

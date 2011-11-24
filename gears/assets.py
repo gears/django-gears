@@ -3,8 +3,9 @@ from __future__ import with_statement
 
 class BaseAsset(object):
 
-    def __init__(self, attributes):
+    def __init__(self, attributes, absolute_path):
         self.attributes = attributes
+        self.absolute_path = absolute_path
 
     def get_source(self):
         raise NotImplementedError()
@@ -16,7 +17,7 @@ class BaseAsset(object):
 class Asset(BaseAsset):
 
     def get_source(self):
-        with open(self.attributes.absolute_path, 'rb') as f:
+        with open(self.absolute_path, 'rb') as f:
             source = f.read()
         for processor in self.attributes.get_processors():
             source = processor.process(source)
@@ -26,5 +27,5 @@ class Asset(BaseAsset):
 class StaticAsset(BaseAsset):
 
     def get_source(self):
-        with open(self.attributes.absolute_path, 'rb') as f:
+        with open(self.absolute_path, 'rb') as f:
             return f.read()
