@@ -96,8 +96,7 @@ class DirectivesProcessor(BaseProcessor):
             raise InvalidDirective(
                 "%s (%s): required file does not exist."
                 % (self.path, lineno))
-        asset_attributes = AssetAttributes(
-            self.environment, path, absolute_path)
+        asset_attributes = AssetAttributes(self.environment, path)
         body.append(str(Asset(asset_attributes, absolute_path)).strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):

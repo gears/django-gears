@@ -4,10 +4,9 @@ import re
 
 class AssetAttributes(object):
 
-    def __init__(self, environment, path, absolute_path):
+    def __init__(self, environment, path):
         self.environment = environment
         self.path = path
-        self.absolute_path = absolute_path
 
     def get_extensions(self):
         return re.findall(r'\.[^.]+', os.path.basename(self.path))

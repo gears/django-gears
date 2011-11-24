@@ -24,8 +24,7 @@ class DirectivesProcessorTests(TestCase):
 
     def get_processor(self, path):
         environment = self.get_environment()
-        absolute_path = os.path.join(ASSETS_DIR, path)
-        asset_attributes = AssetAttributes(environment, path, absolute_path)
+        asset_attributes = AssetAttributes(environment, path)
         return DirectivesProcessor(asset_attributes)
 
     def test_css_directives(self):
