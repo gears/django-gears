@@ -1,6 +1,5 @@
 import os
 
-from django.utils.functional import memoize
 from django.utils.importlib import import_module
 from django.utils._os import safe_join
 
@@ -44,7 +43,9 @@ class FileSystemFinder(BaseFinder):
             return path
 
 
-def _get_finder_class(path):
+def get_finder_class(path):
+    if path in _finder_classes:
+        return _finder_classes[path]
     module_name, attr = path.rsplit('.', 1)
     try:
         module = import_module(module_name)
@@ -59,5 +60,5 @@ def _get_finder_class(path):
     if not issubclass(Finder, BaseFinder):
         raise ImproperlyConfigured(
             'Finder "%s" is not a subclass of "%s".' % (Finder, BaseFinder))
+    _finder_classes[path] = Finder
     return Finder
-get_finder_class = memoize(_get_finder_class, _finder_classes, 1)

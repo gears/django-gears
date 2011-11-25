@@ -1,8 +1,6 @@
 from subprocess import Popen, PIPE
 
-from django.utils.functional import memoize
 from django.utils.importlib import import_module
-
 from ..exceptions import ImproperlyConfigured
 
 
@@ -37,7 +35,9 @@ class ExecEngine(BaseEngine):
         raise EngineProcessFailed(errors)
 
 
-def _get_engine_class(path):
+def get_engine_class(path):
+    if path in _engine_classes:
+        return _engine_classes[path]
     module_name, attr = path.rsplit('.', 1)
     try:
         module = import_module(module_name)
@@ -52,5 +52,5 @@ def _get_engine_class(path):
     if not issubclass(Engine, BaseEngine):
         raise ImproperlyConfigured(
             'Engine "%s" is not a subclass of "%s".' % (Engine, BaseEngine))
+    _engine_classes[path] = Engine
     return Engine
-get_engine_class = memoize(_get_engine_class, _engine_classes, 1)

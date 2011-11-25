@@ -4,7 +4,6 @@ import os
 import re
 import shlex
 
-from django.utils.functional import memoize
 from django.utils.importlib import import_module
 
 from .asset_attributes import AssetAttributes
@@ -114,7 +113,9 @@ class DirectivesProcessor(BaseProcessor):
         return require_path + ''.join(self.asset_attributes.extensions)
 
 
-def _get_processor_class(path):
+def get_processor_class(path):
+    if path in _processor_classes:
+        return _processor_classes[path]
     module_name, attr = path.rsplit('.', 1)
     try:
         module = import_module(module_name)
@@ -130,5 +131,5 @@ def _get_processor_class(path):
         raise ImproperlyConfigured(
             'Processor "%s" is not a subclass of "%s".'
             % (Processor, BaseProcessor))
+    _processor_classes[path] = Processor
     return Processor
-get_processor_class = memoize(_get_processor_class, _processor_classes, 1)
