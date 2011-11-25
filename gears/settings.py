@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from .engines import get_engine_class
+from .engines.base import get_engine_class
 from .environment import Environment
 from .finders import get_finder_class
 from .processors import get_processor_class
