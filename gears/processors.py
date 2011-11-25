@@ -4,14 +4,8 @@ import os
 import re
 import shlex
 
-from django.utils.importlib import import_module
-
 from .asset_attributes import AssetAttributes
 from .assets import Asset
-from .exceptions import ImproperlyConfigured
-
-
-_processor_classes = {}
 
 
 class InvalidDirective(Exception):
@@ -111,25 +105,3 @@ class DirectivesProcessor(BaseProcessor):
     def get_relative_path(self, require_path):
         require_path = os.path.join(os.path.dirname(self.path), require_path)
         return require_path + ''.join(self.asset_attributes.extensions)
-
-
-def get_processor_class(path):
-    if path in _processor_classes:
-        return _processor_classes[path]
-    module_name, attr = path.rsplit('.', 1)
-    try:
-        module = import_module(module_name)
-    except ImportError, e:
-        raise ImproperlyConfigured(
-            'Error importing module %s: "%s".' % (module, e))
-    try:
-        Processor = getattr(module, attr)
-    except AttributeError:
-        raise ImproperlyConfigured(
-            'Module "%s" does not define a "%s" class.' % (module_name, attr))
-    if not issubclass(Processor, BaseProcessor):
-        raise ImproperlyConfigured(
-            'Processor "%s" is not a subclass of "%s".'
-            % (Processor, BaseProcessor))
-    _processor_classes[path] = Processor
-    return Processor

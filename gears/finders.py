@@ -1,12 +1,6 @@
 import os
-
-from django.utils.importlib import import_module
 from django.utils._os import safe_join
-
 from .exceptions import ImproperlyConfigured
-
-
-_finder_classes = {}
 
 
 class BaseFinder(object):
@@ -41,24 +35,3 @@ class FileSystemFinder(BaseFinder):
         path = safe_join(root, path)
         if os.path.exists(path):
             return path
-
-
-def get_finder_class(path):
-    if path in _finder_classes:
-        return _finder_classes[path]
-    module_name, attr = path.rsplit('.', 1)
-    try:
-        module = import_module(module_name)
-    except ImportError, e:
-        raise ImproperlyConfigured(
-            'Error importing module %s: "%s".' % (module, e))
-    try:
-        Finder = getattr(module, attr)
-    except AttributeError:
-        raise ImproperlyConfigured(
-            'Module "%s" does not define a "%s" class.' % (module_name, attr))
-    if not issubclass(Finder, BaseFinder):
-        raise ImproperlyConfigured(
-            'Finder "%s" is not a subclass of "%s".' % (Finder, BaseFinder))
-    _finder_classes[path] = Finder
-    return Finder
