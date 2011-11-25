@@ -1,6 +1,5 @@
 from django.conf import settings
-
-from .environment import Environment
+from gears.environment import Environment
 from .utils import get_engine_class, get_finder_class, get_processor_class
 
 

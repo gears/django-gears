@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.staticfiles.views import serve as staticfiles_serve
 from django.http import HttpResponse
 
-from .assets import build_asset
+from gears.assets import build_asset
 from .settings import environment
 
 
