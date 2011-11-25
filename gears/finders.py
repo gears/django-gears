@@ -1,9 +1,10 @@
 import os
 
-from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
 from django.utils.importlib import import_module
 from django.utils._os import safe_join
+
+from .exceptions import ImproperlyConfigured
 
 
 _finder_classes = {}

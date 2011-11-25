@@ -4,12 +4,12 @@ import os
 import re
 import shlex
 
-from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
 from django.utils.importlib import import_module
 
 from .asset_attributes import AssetAttributes
 from .assets import Asset
+from .exceptions import ImproperlyConfigured
 
 
 _processor_classes = {}

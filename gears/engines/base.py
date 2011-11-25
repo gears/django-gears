@@ -1,8 +1,9 @@
 from subprocess import Popen, PIPE
 
-from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import memoize
 from django.utils.importlib import import_module
+
+from ..exceptions import ImproperlyConfigured
 
 
 _engine_classes = {}
