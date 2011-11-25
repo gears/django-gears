@@ -16,6 +16,7 @@ setup(
     author='Mike Yumatov',
     author_email='mike@yumatov.org',
     packages=find_packages(exclude=['tests', 'tests.*']),
+    include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',

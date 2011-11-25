@@ -2,5 +2,7 @@ include AUTHORS
 include LICENSE
 include README.rst
 
+include gears/engines/handlebars.js
+
 recursive-include tests *
 recursive-exclude tests *.pyc
