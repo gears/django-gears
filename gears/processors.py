@@ -26,7 +26,7 @@ class BaseProcessor(object):
         self.environment = asset_attributes.environment
         self.path = asset_attributes.path
 
-    def process(self, source, calls):
+    def process(self, source, context, calls):
         raise NotImplementedError()
 
 
@@ -35,7 +35,7 @@ class DirectivesProcessor(BaseProcessor):
     header_re = re.compile(r'^(\s*((/\*.*?\*/)|(//[^\n]*\n?)+))+', re.DOTALL)
     directive_re = re.compile(r"""^\s*(?:\*|//)\s*=\s*(\w+[./'"\s\w-]*)$""")
 
-    def process(self, source, calls):
+    def process(self, source, context, calls):
         match = self.header_re.match(source)
         if match:
             header = match.group(0)
@@ -43,17 +43,18 @@ class DirectivesProcessor(BaseProcessor):
         else:
             header = ''
             body = source
-        source = '\n\n'.join(self.process_directives(header, body, calls))
-        return source.strip() + '\n'
+        source = self.process_directives(header, body, context, calls)
+        return '\n\n'.join(source).strip() + '\n'
 
-    def process_directives(self, header, self_body, calls):
+    def process_directives(self, header, self_body, context, calls):
         body = []
         directive_linenos = []
         has_require_self = False
         for lineno, args in self.parse_directives(header):
             try:
                 if args[0] == 'require':
-                    self.process_require_directive(args[1:], lineno, body, calls)
+                    self.process_require_directive(
+                        args[1:], lineno, body, context, calls)
                 elif args[0] == 'require_self':
                     self.process_require_self_directive(
                         args[1:], lineno, body, self_body)
@@ -83,7 +84,7 @@ class DirectivesProcessor(BaseProcessor):
             if match:
                 yield lineno, shlex.split(match.group(1))
 
-    def process_require_directive(self, args, lineno, body, calls):
+    def process_require_directive(self, args, lineno, body, context, calls):
         if len(args) != 1:
             raise InvalidDirective(
                 "%s (%s): 'require' directive has wrong number "
@@ -93,7 +94,8 @@ class DirectivesProcessor(BaseProcessor):
         if not absolute_path:
             raise InvalidDirective(
                 "%s (%s): required file does not exist." % (self.path, lineno))
-        body.append(str(Asset(asset_attributes, absolute_path, calls)).strip())
+        asset = Asset(asset_attributes, absolute_path, context, calls)
+        body.append(str(asset).strip())
 
     def process_require_self_directive(self, args, lineno, body, self_body):
         if args:

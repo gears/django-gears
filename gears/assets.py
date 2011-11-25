@@ -7,9 +7,10 @@ class AssetAlreadyUsed(Exception):
 
 class BaseAsset(object):
 
-    def __init__(self, attributes, absolute_path, calls=None):
+    def __init__(self, attributes, absolute_path, context=None, calls=None):
         self.attributes = attributes
         self.absolute_path = absolute_path
+        self.context = context or {}
         self.calls = calls or set()
         if self.absolute_path in self.calls:
             raise AssetAlreadyUsed(
@@ -29,8 +30,13 @@ class Asset(BaseAsset):
         with open(self.absolute_path, 'rb') as f:
             source = f.read()
         for processor in self.attributes.processors:
-            source = processor.process(source, self.calls)
+            source = processor.process(source, self.get_context(), self.calls)
         return source
+
+    def get_context(self):
+        context = self.context.copy()
+        context['name'] = self.attributes.path_without_extensions
+        return context
 
 
 class StaticAsset(BaseAsset):

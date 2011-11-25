@@ -16,7 +16,7 @@ class BaseEngine(object):
 
     result_mimetype = None
 
-    def process(self, source, calls):
+    def process(self, source, context, calls):
         raise NotImplementedError()
 
 
@@ -27,7 +27,8 @@ class ExecEngine(BaseEngine):
     def __init__(self, executable):
         self.executable = executable
 
-    def process(self, source, calls):
+    def process(self, source, context, calls):
+        print context, calls
         args = [self.executable] + self.params
         p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output, errors = p.communicate(input=source)
