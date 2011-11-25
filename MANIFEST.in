@@ -4,6 +4,7 @@ include README.rst
 
 include gears/engines/handlebars.js
 include gears/engines/less.js
+include gears/engines/stylus.js
 
 recursive-include tests *
 recursive-exclude tests *.pyc
