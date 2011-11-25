@@ -1,3 +1,4 @@
+import os
 from django.utils.importlib import import_module
 from .exceptions import ImproperlyConfigured
 
@@ -21,6 +22,16 @@ class cached_property(object):
             value = self.func(obj)
             obj.__dict__[self.__name__] = value
         return value
+
+
+def safe_join(base, *paths):
+    if not os.path.isabs(base):
+        raise ValueError("%r is not an absolute path." % base)
+    base = os.path.normpath(base)
+    path = os.path.normpath(os.path.join(base, *paths))
+    if not path.startswith(base):
+        raise ValueError("Path %r is outside of %r" % (path, base))
+    return path
 
 
 def first(function, iterable):

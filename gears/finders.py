@@ -1,6 +1,6 @@
 import os
-from django.utils._os import safe_join
 from .exceptions import ImproperlyConfigured
+from .utils import safe_join
 
 
 class BaseFinder(object):
