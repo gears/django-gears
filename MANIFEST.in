@@ -3,6 +3,7 @@ include LICENSE
 include README.rst
 
 include gears/engines/handlebars.js
+include gears/engines/less.js
 
 recursive-include tests *
 recursive-exclude tests *.pyc
