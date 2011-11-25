@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from .asset_attributes import AssetAttributes
 
 
 class AssetAlreadyUsed(Exception):
@@ -44,3 +45,14 @@ class StaticAsset(BaseAsset):
     def get_source(self):
         with open(self.absolute_path, 'rb') as f:
             return f.read()
+
+
+def build_asset(environment, path):
+    if path not in environment.public_assets:
+        return
+    asset_attributes = AssetAttributes(environment, path)
+    asset_attributes, absolute_path = environment.find(asset_attributes, True)
+    if absolute_path:
+        if asset_attributes.processors:
+            return Asset(asset_attributes, absolute_path, calls=set())
+        return StaticAsset(asset_attributes, absolute_path)

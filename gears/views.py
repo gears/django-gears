@@ -7,20 +7,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.staticfiles.views import serve as staticfiles_serve
 from django.http import HttpResponse
 
-from .asset_attributes import AssetAttributes
-from .assets import Asset, StaticAsset
+from .assets import build_asset
 from .settings import environment
-
-
-def build_asset(environment, path):
-    if path not in environment.public_assets:
-        return
-    asset_attributes = AssetAttributes(environment, path)
-    asset_attributes, absolute_path = environment.find(asset_attributes, True)
-    if absolute_path:
-        if asset_attributes.processors:
-            return Asset(asset_attributes, absolute_path, calls=set())
-        return StaticAsset(asset_attributes, absolute_path)
 
 
 def serve(request, path, **kwargs):
