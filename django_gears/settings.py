@@ -26,6 +26,7 @@ DEFAULT_PUBLIC_ASSETS = (
 
 
 environment = Environment(getattr(settings, 'GEARS_ROOT'))
+environment.engines.register_defaults()
 
 for finder_class in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
     if isinstance(finder_class, (list, tuple)):
