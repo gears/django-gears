@@ -8,6 +8,8 @@ from django.contrib.staticfiles.views import serve as staticfiles_serve
 from django.http import HttpResponse
 
 from gears.assets import build_asset
+from gears.exceptions import FileNotFound
+
 from .settings import environment
 
 
@@ -17,8 +19,9 @@ def serve(request, path, **kwargs):
             "The gears view can only be used in debug mode or if the "
             "--insecure option of 'runserver' is used.")
     normalized_path = posixpath.normpath(urllib.unquote(path)).lstrip('/')
-    asset = build_asset(environment, normalized_path)
-    if not asset:
+    try:
+        asset = build_asset(environment, normalized_path)
+    except FileNotFound:
         return staticfiles_serve(request, path, **kwargs)
     mimetype, encoding = mimetypes.guess_type(normalized_path)
     mimetype = mimetype or 'application/octet-stream'
