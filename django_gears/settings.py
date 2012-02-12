@@ -46,7 +46,7 @@ for extension, engine_class in getattr(settings, 'GEARS_ENGINES', {}).items():
     else:
         options = {}
     engine_class = get_engine_class(engine_class)
-    environment.engines.register(extension, engine_class(**options))
+    environment.engines.register(extension, engine_class.as_engine(**options))
 
 public_assets = getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS)
 for public_asset in public_assets:
@@ -58,7 +58,7 @@ for mimetype, preprocessor_classes in preprocessors.items():
         preprocessor_classes = [preprocessor_classes]
     for preprocessor_class in preprocessor_classes:
         preprocessor_class = get_processor_class(preprocessor_class)
-        environment.preprocessors.register(mimetype, preprocessor_class)
+        environment.preprocessors.register(mimetype, preprocessor_class.as_processor())
 
 postprocessors = getattr(settings, 'GEARS_POSTPROCESSORS', {})
 for mimetype, postprocessor_classes in postprocessors.items():
@@ -66,4 +66,4 @@ for mimetype, postprocessor_classes in postprocessors.items():
         postprocessor_classes = [postprocessor_classes]
     for postprocessor_class in postprocessor_classes:
         postprocessor_class = get_processor_class(postprocessor_class)
-        environment.postprocessors.register(mimetype, postprocessor_class)
+        environment.postprocessors.register(mimetype, postprocessor_class.as_processor())
