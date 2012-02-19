@@ -37,3 +37,7 @@ class ServeViewTests(TestCase):
     def test_returns_asset(self):
         response = self.get_response('js/script.js')
         self.assertEqual(response.content, self.get_fixture('output.js'))
+
+    def test_returns_processed_source_if_body_requested(self):
+        response = self.get_response('js/script.js', {'body': 1})
+        self.assertEqual(response.content, self.get_fixture('output_body.js'))

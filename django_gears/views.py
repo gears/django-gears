@@ -23,6 +23,8 @@ def serve(request, path, **kwargs):
         asset = build_asset(environment, normalized_path)
     except FileNotFound:
         return staticfiles_serve(request, path, **kwargs)
+    if request.GET.get('body'):
+        asset = asset.processed_source
     mimetype, encoding = mimetypes.guess_type(normalized_path)
     mimetype = mimetype or 'application/octet-stream'
     response = HttpResponse(unicode(asset), mimetype=mimetype)
