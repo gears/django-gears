@@ -25,7 +25,7 @@ def serve(request, path, **kwargs):
         return staticfiles_serve(request, path, **kwargs)
     mimetype, encoding = mimetypes.guess_type(normalized_path)
     mimetype = mimetype or 'application/octet-stream'
-    response = HttpResponse(asset, mimetype=mimetype)
+    response = HttpResponse(unicode(asset), mimetype=mimetype)
     if encoding:
         response['Content-Encoding'] = encoding
     return response
