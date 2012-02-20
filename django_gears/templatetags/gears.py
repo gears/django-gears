@@ -15,6 +15,20 @@ class CSSAssetTagNode(Node):
         self.logical_path = logical_path
         self.debug = debug
 
+    @classmethod
+    def handle_token(cls, parser, token):
+        bits = token.split_contents()
+        if len(bits) not in (2, 3):
+            msg = '%r tag takes one argument: the logical path to the public asset'
+            raise TemplateSyntaxError(msg % bits[0])
+        debug = (len(bits) == 3)
+        if debug and bits[2] != 'debug':
+            msg = "Second (optional) argument to %r tag must be 'debug'"
+            raise TemplateSyntaxError(msg % bits[0])
+        logical_path = parser.compile_filter(bits[1])
+        return cls(logical_path, debug)
+
+
     def render(self, context):
         logical_path = self.logical_path.resolve(context)
         if self.debug or GEARS_DEBUG:
@@ -27,13 +41,4 @@ class CSSAssetTagNode(Node):
 
 @register.tag
 def css_asset_tag(parser, token):
-    bits = token.split_contents()
-    if len(bits) not in (2, 3):
-        raise TemplateSyntaxError("'css_asset_tag' tag takes one argument:"
-                                  " the logical path to the public asset")
-    debug = (len(bits) == 3)
-    if debug and bits[2] != 'debug':
-        raise TemplateSyntaxError("Second (optional) argument to"
-                                  " 'css_asset_tag' tag must be 'debug'")
-    logical_path = parser.compile_filter(bits[1])
-    return CSSAssetTagNode(logical_path, debug)
+    return CSSAssetTagNode.handle_token(parser, token)
