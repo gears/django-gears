@@ -7,9 +7,7 @@ from ..settings import environment, GEARS_URL, GEARS_DEBUG
 register = Library()
 
 
-class CSSAssetTagNode(Node):
-
-    template = u'<link rel="stylesheet" href="%s%%s">' % GEARS_URL
+class AssetTagNode(Node):
 
     def __init__(self, logical_path, debug):
         self.logical_path = logical_path
@@ -39,6 +37,21 @@ class CSSAssetTagNode(Node):
         return '\n'.join((self.template % path) for path in paths)
 
 
+class CSSAssetTagNode(AssetTagNode):
+
+    template = u'<link rel="stylesheet" href="%s%%s">' % GEARS_URL
+
+
+class JSAssetTagNode(AssetTagNode):
+
+    template = u'<script src="%s%%s"></script>' % GEARS_URL
+
+
 @register.tag
 def css_asset_tag(parser, token):
     return CSSAssetTagNode.handle_token(parser, token)
+
+
+@register.tag
+def js_asset_tag(parser, token):
+    return JSAssetTagNode.handle_token(parser, token)
