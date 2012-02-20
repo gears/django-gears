@@ -24,6 +24,10 @@ DEFAULT_PUBLIC_ASSETS = (
     'js/script.js',
 )
 
+GEARS_DEBUG = getattr(settings, 'GEARS_DEBUG', settings.DEBUG)
+
+GEARS_URL = getattr(settings, 'GEARS_URL', settings.STATIC_URL)
+
 
 environment = Environment(getattr(settings, 'GEARS_ROOT'))
 environment.engines.register_defaults()
