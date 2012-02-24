@@ -3,13 +3,13 @@ import os
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
-from gears.compressors import BaseCompressor
-from gears.engines.base import BaseEngine
+from gears.compilers.base import BaseCompiler
+from gears.compressors.base import BaseCompressor
 from gears.finders import BaseFinder
-from gears.processors import BaseProcessor
+from gears.processors.base import BaseProcessor
 
 
-_engine_classes = {}
+_compiler_classes = {}
 _finder_classes = {}
 _processor_classes = {}
 _compressor_classes = {}
@@ -36,8 +36,8 @@ def get_class(path, cache, base_class=None):
     return cls
 
 
-def get_engine_class(path):
-    return get_class(path, _engine_classes, BaseEngine)
+def get_compiler_class(path):
+    return get_class(path, _compiler_classes, BaseCompiler)
 
 
 def get_finder_class(path):
