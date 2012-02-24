@@ -1,6 +1,7 @@
 from django.conf import settings
 from gears.environment import Environment
-from .utils import get_engine_class, get_finder_class, get_processor_class
+from .utils import (get_engine_class, get_finder_class, get_processor_class,
+                    get_compressor_class)
 
 
 DEFAULT_FINDERS = (
@@ -71,3 +72,8 @@ for mimetype, postprocessor_classes in postprocessors.items():
     for postprocessor_class in postprocessor_classes:
         postprocessor_class = get_processor_class(postprocessor_class)
         environment.postprocessors.register(mimetype, postprocessor_class.as_processor())
+
+compressors = getattr(settings, 'GEARS_COMPRESSORS', {})
+for mimetype, compressor_class in compressors.items():
+    compressor_class = get_compressor_class(compressor_class)
+    environment.compressors.register(mimetype, compressor_class.as_compressor())
