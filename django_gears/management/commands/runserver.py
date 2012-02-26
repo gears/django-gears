@@ -1,10 +1,10 @@
 from optparse import make_option
 
 from django.conf import settings
+from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.core.management.commands.runserver import BaseRunserverCommand
 
-from django.contrib.staticfiles.handlers import StaticFilesHandler
-from gears.handlers import AssetFilesHandler
+from django_gears.handlers import AssetFilesHandler
 
 
 class Command(BaseRunserverCommand):
