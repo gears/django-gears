@@ -1,4 +1,4 @@
-from .settings import *
+from tests.settings import *
 
 
 INSTALLED_APPS += ('test_templatetags',)
