@@ -1,5 +1,8 @@
+from __future__ import with_statement
+
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
+
 from django_gears.utils import get_finder
 from . import finders
 
