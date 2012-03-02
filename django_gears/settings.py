@@ -1,7 +1,6 @@
 from django.conf import settings
 from gears.environment import Environment
-from .utils import (get_compiler_class, get_finder_class, get_processor_class,
-                    get_compressor_class)
+from .utils import get_finder, get_asset_handler
 
 
 DEFAULT_FINDERS = (
@@ -33,47 +32,42 @@ GEARS_URL = getattr(settings, 'GEARS_URL', settings.STATIC_URL)
 environment = Environment(getattr(settings, 'GEARS_ROOT'))
 environment.compilers.register_defaults()
 
-for finder_class in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
-    if isinstance(finder_class, (list, tuple)):
-        finder_class, options = finder_class
+for path in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
+    if isinstance(path, (list, tuple)):
+        path, options = path
     else:
-        options = {}
-    finder_class = get_finder_class(finder_class)
-    environment.finders.register(finder_class(**options))
+        options = None
+    environment.finders.register(get_finder(path, options))
 
 mimetypes = getattr(settings, 'GEARS_MIMETYPES', DEFAULT_MIMETYPES)
 for extension, mimetype in mimetypes.items():
     environment.mimetypes.register(extension, mimetype)
 
-for extension, compiler_class in getattr(settings, 'GEARS_COMPILERS', {}).items():
-    if isinstance(compiler_class, (list, tuple)):
-        compiler_class, options = compiler_class
+for extension, path in getattr(settings, 'GEARS_COMPILERS', {}).items():
+    if isinstance(path, (list, tuple)):
+        path, options = path
     else:
         options = {}
-    compiler_class = get_compiler_class(compiler_class)
-    environment.compilers.register(extension, compiler_class.as_handler(**options))
+    environment.compilers.register(extension, get_asset_handler(path, options))
 
 public_assets = getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS)
 for public_asset in public_assets:
     environment.public_assets.register(public_asset)
 
 preprocessors = getattr(settings, 'GEARS_PREPROCESSORS', DEFAULT_PREPROCESSORS)
-for mimetype, preprocessor_classes in preprocessors.items():
-    if not isinstance(preprocessor_classes, (list, tuple)):
-        preprocessor_classes = [preprocessor_classes]
-    for preprocessor_class in preprocessor_classes:
-        preprocessor_class = get_processor_class(preprocessor_class)
-        environment.preprocessors.register(mimetype, preprocessor_class.as_handler())
+for mimetype, paths in preprocessors.items():
+    if not isinstance(paths, (list, tuple)):
+        paths = [paths]
+    for path in paths:
+        environment.preprocessors.register(mimetype, get_asset_handler(path))
 
 postprocessors = getattr(settings, 'GEARS_POSTPROCESSORS', {})
-for mimetype, postprocessor_classes in postprocessors.items():
-    if not isinstance(postprocessor_classes, (list, tuple)):
-        postprocessor_classes = [postprocessor_classes]
-    for postprocessor_class in postprocessor_classes:
-        postprocessor_class = get_processor_class(postprocessor_class)
-        environment.postprocessors.register(mimetype, postprocessor_class.as_handler())
+for mimetype, paths in postprocessors.items():
+    if not isinstance(paths, (list, tuple)):
+        paths = [paths]
+    for path in paths:
+        environment.postprocessors.register(mimetype, get_asset_handler(path))
 
 compressors = getattr(settings, 'GEARS_COMPRESSORS', {})
-for mimetype, compressor_class in compressors.items():
-    compressor_class = get_compressor_class(compressor_class)
-    environment.compressors.register(mimetype, compressor_class.as_handler())
+for mimetype, path in compressors.items():
+    environment.compressors.register(mimetype, get_asset_handler(path))
