@@ -4,6 +4,7 @@ python:
   - "2.6"
   - "2.7"
 install:
+  - pip install mock --use-mirrors
   - pip install Django --use-mirrors
   - pip install git+git://github.com/trilan/gears.git --use-mirrors
   - pip install . --use-mirrors
