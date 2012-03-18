@@ -1,52 +1,53 @@
-import os
+import warnings
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
-from gears.compilers.base import BaseCompiler
-from gears.compressors.base import BaseCompressor
+from gears.asset_handler import BaseAssetHandler
 from gears.finders import BaseFinder
-from gears.processors.base import BaseProcessor
 
 
-_compiler_classes = {}
-_finder_classes = {}
-_processor_classes = {}
-_compressor_classes = {}
+_cache = {}
 
 
-def get_class(path, cache, base_class=None):
-    if path in cache:
-        return cache[path]
-    module_name, attr = path.rsplit('.', 1)
+def _get_module(path):
     try:
-        module = import_module(module_name)
+        return import_module(path)
     except ImportError, e:
-        raise ImproperlyConfigured(
-            'Error importing module %s: "%s".' % (module, e))
+        raise ImproperlyConfigured('Error importing module %s: "%s".' % (path, e))
+
+
+def _get_module_attr(module_path, name):
     try:
-        cls = getattr(module, attr)
+        return getattr(_get_module(module_path), name)
     except AttributeError:
-        raise ImproperlyConfigured(
-            'Module "%s" does not define a "%s" class.' % (module_name, attr))
-    if base_class is not None and not issubclass(cls, base_class):
-        raise ImproperlyConfigured(
-            '"%s" is not a subclass of "%s".' % (cls, base_class))
-    cache[path] = cls
-    return cls
+        raise ImproperlyConfigured('Module "%s" does not define a "%s" obj.' % (module_path, name))
 
 
-def get_compiler_class(path):
-    return get_class(path, _compiler_classes, BaseCompiler)
+def _get_object(path):
+    if path not in _cache:
+        _cache[path] = _get_module_attr(*path.rsplit('.', 1))
+    return _cache[path]
 
 
-def get_finder_class(path):
-    return get_class(path, _finder_classes, BaseFinder)
+def get_finder(path, options=None):
+    cls = _get_object(path)
+    if not issubclass(cls, BaseFinder):
+        raise ImproperlyConfigured('"%s" is not a subclass of BaseFinder.' % path)
+    return cls(**(options or {}))
 
 
-def get_processor_class(path):
-    return get_class(path, _processor_classes, BaseProcessor)
-
-
-def get_compressor_class(path):
-    return get_class(path, _compressor_classes, BaseCompressor)
+def get_asset_handler(path, options=None):
+    obj = _get_object(path)
+    try:
+        if issubclass(obj, BaseAssetHandler):
+            return obj.as_handler(**(options or {}))
+    except TypeError:
+        pass
+    if callable(obj):
+        if options is not None:
+            warnings.warn('%r is provided as %r handler options, but not used '
+                'because this handler is not a BaseAssethandler subclass.'
+                % (options, path))
+        return obj
+    raise ImproperlyConfigured('"%s" must be a BaseAssetHandler subclass or callable object' % path)
