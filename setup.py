@@ -8,7 +8,7 @@ def read(filename):
 
 setup(
     name='django-gears',
-    version='0.1',
+    version='0.2',
     license='ISC',
     description='Compiles and concatenates JavaScript and CSS assets.',
     long_description=read('README.rst'),
@@ -18,7 +18,7 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     install_requires=[
-        'Gears',
+        'Gears>=0.2',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
