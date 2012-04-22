@@ -30,6 +30,11 @@ def _get_object(path):
     return _cache[path]
 
 
+def get_cache(path, options=None):
+    cls = _get_object(path)
+    return cls(**(options or {}))
+
+
 def get_finder(path, options=None):
     cls = _get_object(path)
     if not issubclass(cls, BaseFinder):
