@@ -12,7 +12,7 @@ setup(
     license='ISC',
     description='Compiles and concatenates JavaScript and CSS assets.',
     long_description=read('README.rst'),
-    url='https://github.com/trilan/django-gears',
+    url='https://github.com/gears/django-gears',
     author='Mike Yumatov',
     author_email='mike@yumatov.org',
     packages=find_packages(exclude=['tests', 'tests.*']),

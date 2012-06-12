@@ -1,7 +1,7 @@
 Django Gears
 ============
 
-.. image:: https://secure.travis-ci.org/trilan/django-gears.png?branch=develop
+.. image:: https://secure.travis-ci.org/gears/django-gears.png?branch=develop
 
 Gears_ for Django_.
 
