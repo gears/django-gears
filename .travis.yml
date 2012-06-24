@@ -6,6 +6,6 @@ python:
 install:
   - pip install mock --use-mirrors
   - pip install Django --use-mirrors
-  - pip install git+git://github.com/trilan/gears.git --use-mirrors
+  - pip install git+git://github.com/gears/gears.git --use-mirrors
   - pip install . --use-mirrors
 script: make test
