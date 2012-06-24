@@ -1,7 +1,9 @@
 from django.conf import settings
 from gears.environment import Environment
-from .utils import get_finder, get_asset_handler
+from .utils import get_cache, get_finder, get_asset_handler
 
+
+DEFAULT_CACHE = 'gears.cache.SimpleCache'
 
 DEFAULT_FINDERS = (
     ('gears.finders.FileSystemFinder', {
@@ -29,7 +31,14 @@ GEARS_DEBUG = getattr(settings, 'GEARS_DEBUG', settings.DEBUG)
 GEARS_URL = getattr(settings, 'GEARS_URL', settings.STATIC_URL)
 
 
-environment = Environment(getattr(settings, 'GEARS_ROOT'))
+path = getattr(settings, 'GEARS_CACHE', DEFAULT_CACHE)
+if isinstance(path, (list, tuple)):
+    path, options = path
+else:
+    options = None
+cache = get_cache(path, options)
+
+environment = Environment(getattr(settings, 'GEARS_ROOT'), cache=cache)
 environment.compilers.register_defaults()
 
 for path in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
