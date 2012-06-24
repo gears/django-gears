@@ -5,5 +5,5 @@ Django Gears
 
 Gears_ for Django_.
 
-.. _Gears: http://git.io/gears
+.. _Gears: https://github.com/gears/gears
 .. _Django: https://www.djangoproject.com/
