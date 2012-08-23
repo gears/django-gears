@@ -39,7 +39,6 @@ else:
 cache = get_cache(path, options)
 
 environment = Environment(getattr(settings, 'GEARS_ROOT'), cache=cache)
-environment.compilers.register_defaults()
 
 for path in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
     if isinstance(path, (list, tuple)):
