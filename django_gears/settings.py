@@ -1,5 +1,5 @@
 from django.conf import settings
-from gears.environment import Environment
+from gears.environment import Environment, DEFAULT_PUBLIC_ASSETS
 from .utils import get_cache, get_finder, get_asset_handler
 
 
@@ -21,11 +21,6 @@ DEFAULT_PREPROCESSORS = {
     'application/javascript': 'gears.processors.DirectivesProcessor',
 }
 
-DEFAULT_PUBLIC_ASSETS = (
-    'css/style.css',
-    'js/script.js',
-)
-
 GEARS_DEBUG = getattr(settings, 'GEARS_DEBUG', settings.DEBUG)
 
 GEARS_URL = getattr(settings, 'GEARS_URL', settings.STATIC_URL)
@@ -38,7 +33,11 @@ else:
     options = None
 cache = get_cache(path, options)
 
-environment = Environment(getattr(settings, 'GEARS_ROOT'), cache=cache)
+environment = Environment(
+    root=getattr(settings, 'GEARS_ROOT'),
+    public_assets=getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS),
+    cache=cache,
+)
 
 for path in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
     if isinstance(path, (list, tuple)):
@@ -57,10 +56,6 @@ for extension, path in getattr(settings, 'GEARS_COMPILERS', {}).items():
     else:
         options = {}
     environment.compilers.register(extension, get_asset_handler(path, options))
-
-public_assets = getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS)
-for public_asset in public_assets:
-    environment.public_assets.register(public_asset)
 
 preprocessors = getattr(settings, 'GEARS_PREPROCESSORS', DEFAULT_PREPROCESSORS)
 for mimetype, paths in preprocessors.items():
