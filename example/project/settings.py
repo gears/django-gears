@@ -146,5 +146,6 @@ GEARS_DIRS = (
     os.path.join(PROJECT_ROOT, 'assets'),
 )
 
-NODE_PATH = os.path.normpath(os.path.join(PROJECT_ROOT, '..', 'node_modules'))
-os.environ['NODE_PATH'] = NODE_PATH
+GEARS_COMPILERS = {
+    '.styl': 'gears_stylus.StylusCompiler',
+}
