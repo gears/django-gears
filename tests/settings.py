@@ -19,6 +19,8 @@ STATICFILES_DIRS = (
     os.path.join(TESTS_DIR, 'static'),
 )
 
+SECRET_KEY = 'secret key'
+
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_gears',
