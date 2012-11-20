@@ -8,7 +8,7 @@ def read(filename):
 
 setup(
     name='django-gears',
-    version='0.4.1'
+    version='0.4.2',
     license='ISC',
     description='Compiles and concatenates JavaScript and CSS assets.',
     long_description=read('README.rst'),
