@@ -27,7 +27,7 @@ def serve(request, path, **kwargs):
         asset = asset.processed_source
     mimetype, encoding = mimetypes.guess_type(normalized_path)
     mimetype = mimetype or 'application/octet-stream'
-    response = HttpResponse(asset, mimetype=mimetype)
+    response = HttpResponse(str(asset), mimetype=mimetype)
     if encoding:
         response['Content-Encoding'] = encoding
     return response
