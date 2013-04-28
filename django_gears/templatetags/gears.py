@@ -31,8 +31,11 @@ class AssetTagNode(Node):
         logical_path = self.logical_path.resolve(context)
         if self.debug or GEARS_DEBUG:
             asset = build_asset(environment, logical_path)
-            paths = (('%s?body=1' % r.attributes.logical_path) for r in asset.requirements)
+            paths = (('%s?body=1&v=%s' % (r.attributes.logical_path, r.mtime))\
+                for r in asset.requirements)
         else:
+            if logical_path in environment.manifest.files:
+                logical_path = environment.manifest.files[logical_path]
             paths = (logical_path,)
         return '\n'.join((self.template % path) for path in paths)
 

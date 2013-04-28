@@ -21,6 +21,10 @@ DEFAULT_PREPROCESSORS = {
     'application/javascript': 'gears.processors.DirectivesProcessor',
 }
 
+DEFAULT_POSTPROCESSORS = {
+    'text/css': 'gears.processors.HexdigestPathsProcessor',
+}
+
 GEARS_DEBUG = getattr(settings, 'GEARS_DEBUG', settings.DEBUG)
 
 GEARS_URL = getattr(settings, 'GEARS_URL', settings.STATIC_URL)
@@ -37,6 +41,7 @@ environment = Environment(
     root=getattr(settings, 'GEARS_ROOT'),
     public_assets=getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS),
     cache=cache,
+    gzip=getattr(settings, 'GEARS_GZIP', False),
 )
 
 for path in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):
@@ -64,7 +69,7 @@ for mimetype, paths in preprocessors.items():
     for path in paths:
         environment.preprocessors.register(mimetype, get_asset_handler(path))
 
-postprocessors = getattr(settings, 'GEARS_POSTPROCESSORS', {})
+postprocessors = getattr(settings, 'GEARS_POSTPROCESSORS', DEFAULT_POSTPROCESSORS)
 for mimetype, paths in postprocessors.items():
     if not isinstance(paths, (list, tuple)):
         paths = [paths]
