@@ -42,6 +42,7 @@ environment = Environment(
     public_assets=getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS),
     cache=cache,
     gzip=getattr(settings, 'GEARS_GZIP', False),
+    fingerprinting=getattr(settings, 'GEARS_FINGERPRINTING', True),
 )
 
 for path in getattr(settings, 'GEARS_FINDERS', DEFAULT_FINDERS):

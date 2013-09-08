@@ -18,7 +18,7 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     install_requires=[
-        'Gears>=0.6',
+        'Gears>=0.6.1',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
