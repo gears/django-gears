@@ -109,6 +109,7 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_gears',
+    'articles',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -148,4 +149,5 @@ GEARS_DIRS = (
 
 GEARS_COMPILERS = {
     '.styl': 'gears_stylus.StylusCompiler',
+    '.coffee': 'gears_coffeescript.CoffeeScriptCompiler',
 }

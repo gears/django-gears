@@ -9,6 +9,7 @@ DEFAULT_FINDERS = (
     ('gears.finders.FileSystemFinder', {
         'directories': getattr(settings, 'GEARS_DIRS', ()),
     }),
+    ('django_gears.finders.AppFinder', {}),
 )
 
 DEFAULT_MIMETYPES = {
