@@ -1,2 +1,3 @@
-Django
+Django<1.6
 gears-stylus
+gears-coffeescript
