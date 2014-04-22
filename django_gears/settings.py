@@ -30,6 +30,8 @@ GEARS_DEBUG = getattr(settings, 'GEARS_DEBUG', settings.DEBUG)
 
 GEARS_URL = getattr(settings, 'GEARS_URL', settings.STATIC_URL)
 
+GEARS_ROOT = getattr(settings, 'GEARS_ROOT', settings.STATIC_ROOT)
+
 
 path = getattr(settings, 'GEARS_CACHE', DEFAULT_CACHE)
 if isinstance(path, (list, tuple)):
@@ -39,7 +41,7 @@ else:
 cache = get_cache(path, options)
 
 environment = Environment(
-    root=getattr(settings, 'GEARS_ROOT'),
+    root=GEARS_ROOT,
     public_assets=getattr(settings, 'GEARS_PUBLIC_ASSETS', DEFAULT_PUBLIC_ASSETS),
     cache=cache,
     gzip=getattr(settings, 'GEARS_GZIP', False),
