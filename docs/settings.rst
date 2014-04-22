@@ -169,6 +169,15 @@ values are:
 Each pattern can either be a regular expression or a function that takes a
 path and returns a boolean.
 
+.. setting:: GEARS_REGISTER_ENTRY_POINTS
+
+GEARS_REGISTER_ENTRY_POINTS
+---------------------------
+
+If set to ``True`` plugins will be searched and registered using `entry
+points`_. ``False`` by default.
+
+.. _entry points: http://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
 
 .. setting:: GEARS_ROOT
 
