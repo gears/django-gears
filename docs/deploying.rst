@@ -40,6 +40,11 @@ specified in the manifest file.
 Defining public assets
 ----------------------
 
+.. note:: Note, that since Gears 0.7.1 there is ``public`` directive, which you
+   can use to mark assets as public::
+
+       //= public
+
 When ``collectassets`` is run, Gears will only process assets that are
 public. Gears considers any asset public that matches the
 :setting:`GEARS_PUBLIC_ASSETS` setting.
