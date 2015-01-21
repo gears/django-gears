@@ -43,7 +43,7 @@ def serve(request, path, **kwargs):
         asset = asset.processed_source
     mimetype, encoding = mimetypes.guess_type(normalized_path)
     mimetype = mimetype or 'application/octet-stream'
-    response = HttpResponse(bytes(asset), mimetype=mimetype)
+    response = HttpResponse(bytes(asset), content_type=mimetype)
     if encoding:
         response['Content-Encoding'] = encoding
     response['Last-Modified'] = http_date(last_modified)

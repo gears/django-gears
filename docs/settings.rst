@@ -154,6 +154,11 @@ default preprocessors handle dependency management through directives.
 GEARS_PUBLIC_ASSETS
 -------------------
 
+.. note:: Note, that since Gears 0.7.1 there is ``public`` directive, which you
+   can use to mark assets as public::
+
+       //= public
+
 The patterns that define public assets. Only assets matching one of these
 patterns will be processed when ``collectassets`` is run. The default
 values are:

@@ -44,7 +44,7 @@ are always relative to the file that contains them.
 For another example, the style.css file may look like this::
 
     /* Dependencies:
-     *= require buttons.css
+     *= require buttons
      *= require_self
     */
 
